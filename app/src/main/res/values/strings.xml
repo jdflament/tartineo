@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">tartineo</string>
+    <string name="register_back_button">Back</string>
+    <string name="register_submit_button">Register</string>
+    <string name="register_email_text_hint">Email address</string>
+    <string name="register_password_text_hint">Password</string>
+    <string name="register_name_text_hint">Name</string>
+    <string name="register_password_confirmation_text_hint">Confirm password</string>
+    <string name="error_empty_field">Please fill in the required fields.</string>
+    <string name="error_different_passwords">Please specify identical passwords.</string>
+    <string name="error_password_length">Password must be at least 6 characters.</string>
+    <string name="error_incorrect_email_or_password">Email or password is incorrect.</string>
+    <string name="info_registration_successful">Registration successful.</string>
+    <string name="info_register_button_fired">Register button fired.</string>
 </resources>

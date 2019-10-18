@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">tartineo</string>
+    <string name="register_back_button">Retour</string>
+    <string name="register_submit_button">S\'inscrire</string>
+    <string name="register_email_text_hint">Adresse email</string>
+    <string name="register_password_text_hint">Mot de passe</string>
+    <string name="register_name_text_hint">Nom</string>
+    <string name="register_password_confirmation_text_hint">Validation du mot de passe</string>
+    <string name="error_empty_field">Merci de remplir les champs obligatoires.</string>
+    <string name="error_different_passwords">Merci d\'indiquer des mots de passes identiques.</string>
+    <string name="error_password_length">" Le mot de passe doit être au moins de 6 caractères."</string>
+    <string name="error_incorrect_email_or_password">L\'email ou le mot de passe est incorrect.</string>
+    <string name="info_registration_successful">Inscription réussie.</string>
+    <string name="info_register_button_fired">Bouton d\'inscription déclenché.</string>
+</resources>
