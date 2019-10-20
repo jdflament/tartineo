@@ -3,6 +3,7 @@ package insset.ccm2.tartineo;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,7 +25,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private final static String REGISTER_TAG = "REGISTER_ACTIVITY";
 
-    EditText nameText, emailText, passwordText, passwordConfirmationText;
+    EditText usernameText, emailText, passwordText, passwordConfirmationText;
 
     Button registerButton, backButton;
 
@@ -35,45 +36,57 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        Log.i(REGISTER_TAG, "RegisterActivity initialization.");
+        Log.i(REGISTER_TAG, getStringRes(R.string.info_register_initialization));
 
-        // Fields
-        nameText = findViewById(R.id.register_name_text);
+        // Champs
+        usernameText = findViewById(R.id.register_username_text);
         emailText = findViewById(R.id.register_email_text);
         passwordText = findViewById(R.id.register_password_text);
         passwordConfirmationText = findViewById(R.id.register_password_confirmation_text);
 
-        // Buttons
+        // Boutons
         registerButton = findViewById(R.id.register_submit_button);
+        backButton = findViewById(R.id.register_back_button);
 
         // Firebase
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // Vérifie si l'utilisateur est déjà connecté.
+        if (firebaseAuth.getCurrentUser() != null) {
+            Log.i(REGISTER_TAG, getStringRes(R.string.info_user_already_logged_in));
+
+            // TODO : Rediriger vers MapActivity si l'Utilisateur est déjà connecté.
+            //startActivity(new Intent(getApplicationContext(), MapActivity.class));
+        }
     }
 
     /**
-     * Register a new user in the application.
-     * Fired on register button's click.
+     * Inscrit un nouvel utilisateur sur l'application.
+     * Déclanché lors d'un click sur le bouton de validation.
      *
      * @param view RegisterActivity view.
      */
     public void register(View view) {
         Log.i(REGISTER_TAG, getStringRes(R.string.info_register_button_fired));
 
-        String name = nameText.getText().toString();
+        String username = usernameText.getText().toString();
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
         String passwordConfirmation = passwordConfirmationText.getText().toString();
 
-        if (TextUtils.isEmpty(name)|| TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirmation)) {
+        // Vérification si les champs sont remplis.
+        if (TextUtils.isEmpty(username)|| TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirmation)) {
             Log.e(REGISTER_TAG, getStringRes(R.string.error_empty_field));
             Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_field), Toast.LENGTH_SHORT).show();
         }
 
+        // Vérification de la taille du mot de passe.
         if (password.length() < 6) {
             Log.e(REGISTER_TAG, getStringRes(R.string.error_password_length));
             Toast.makeText(getApplicationContext(), getStringRes(R.string.error_password_length), Toast.LENGTH_SHORT).show();
         }
 
+        // Vérification de l'égalité des champs mot de passe.
         if (!TextUtils.equals(password, passwordConfirmation)) {
             Log.e(REGISTER_TAG, getStringRes(R.string.error_different_passwords));
             Toast.makeText(getApplicationContext(), getStringRes(R.string.error_different_passwords), Toast.LENGTH_SHORT).show();
@@ -89,10 +102,8 @@ public class RegisterActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
 
-                    // TODO : Create CardActivity, then redirect to this one.
-
-                    Toast.makeText(getApplicationContext(), "Registration successful.", Toast.LENGTH_SHORT).show();
-                    // startActivity(new Intent(getApplicationContext(), CardActivity.class));
+                    // TODO : Create MapActivity, then redirect to this one (and remove the Toast BTW).
+                    Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
 
                     finish();
                 }
@@ -106,7 +117,15 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
+     * Redirige vers la page de login.
      *
+     * @param view RegisterActivity view.
+     */
+    public void loginPage(View view) {
+        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+    }
+
+    /**
      * @param id Id of the string resource.
      *
      * @return String resource.

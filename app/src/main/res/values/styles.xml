@@ -11,13 +11,26 @@
     <style name="app_title">
         <item name="android:textAlignment">center</item>
         <item name="android:padding">15dp</item>
-        <item name="android:textSize">35dp</item>
+        <item name="android:textSize">35sp</item>
         <item name="android:textColor">@color/primary</item>
         <item name="android:fontFamily">@font/montserrat_alternates_bold</item>
     </style>
 
+    <style name="app_subtitle">
+        <item name="android:textAlignment">center</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/dark</item>
+        <item name="android:fontFamily">@font/montserrat_alternates_regular</item>
+    </style>
+
     <style name="auth_fields_layout">
         <item name="android:layout_marginVertical">50dp</item>
+        <item name="android:layout_marginHorizontal">15dp</item>
+    </style>
+
+    <style name="text">
+        <item name="android:textSize">12sp</item>
         <item name="android:layout_marginHorizontal">15dp</item>
     </style>
 </resources>

@@ -1,15 +1,22 @@
 <resources>
     <string name="app_name">tartineo</string>
-    <string name="register_back_button">Back</string>
-    <string name="register_submit_button">Register</string>
-    <string name="register_email_text_hint">Email address</string>
-    <string name="register_password_text_hint">Password</string>
-    <string name="register_name_text_hint">Name</string>
-    <string name="register_password_confirmation_text_hint">Confirm password</string>
+    <string name="back">Back</string>
+    <string name="register">Register</string>
+    <string name="email_address">Email address</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="password_confirmation">Confirm password</string>
     <string name="error_empty_field">Please fill in the required fields.</string>
     <string name="error_different_passwords">Please specify identical passwords.</string>
     <string name="error_password_length">Password must be at least 6 characters.</string>
     <string name="error_incorrect_email_or_password">Email or password is incorrect.</string>
     <string name="info_registration_successful">Registration successful.</string>
     <string name="info_register_button_fired">Register button fired.</string>
+    <string name="login">Login</string>
+    <string name="registration">Registration</string>
+    <string name="app_description">Locate your bros or enemies.</string>
+    <string name="register_now"><u>First time here ? Register now.</u></string>
+    <string name="info_register_initialization">RegisterActivity initialization.</string>
+    <string name="info_login_initialization">LoginActivity initialization.</string>
+    <string name="info_user_already_logged_in">User already logged in.</string>
 </resources>
