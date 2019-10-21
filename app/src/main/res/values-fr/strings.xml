@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">tartineo</string>
+    <string name="back">Retour</string>
+    <string name="register">S\'inscrire</string>
+    <string name="email_address">Adresse email</string>
+    <string name="password">Mot de passe</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="password_confirmation">Validation du mot de passe</string>
+    <string name="error_empty_field">Merci de remplir les champs obligatoires.</string>
+    <string name="error_different_passwords">Merci d\'indiquer des mots de passes identiques.</string>
+    <string name="error_password_length">" Le mot de passe doit être au moins de 6 caractères."</string>
+    <string name="error_registration_failed">L\'inscription a échouée. Merci de réessayer plus tard.</string>
+    <string name="info_registration_successful">"Inscription réussie. Un email a été envoyé sur votre adresse email. Merci de vérifier votre compte. "</string>
+    <string name="info_register_button_fired">Bouton d\'inscription déclenché.</string>
+    <string name="login">Connexion</string>
+    <string name="registration">Inscription</string>
+    <string name="app_description">Localise tes potes ou tes ennemis.</string>
+    <string name="register_now"><u>Première connexion ? Inscrivez-vous maintenant.</u></string>
+    <string name="info_login_initialization">Initialisation de LoginActivity.</string>
+    <string name="info_register_initialization">Initialisation de RegisterActivity.</string>
+    <string name="info_user_already_logged_in">L\'utilisateur est déjà connecté.</string>
+    <string name="error_empty_email">Merci de saisir votre adresse email.</string>
+    <string name="error_empty_password">Merci de saisir votre mot de passe.</string>
+    <string name="info_login_successful">Connexion réussie.</string>
+    <string name="error_login_failed">La connexion a échouée. Merci de réessayer plus tard.</string>
+    <string name="info_username_storage">Le nom d\'utilisateur a été enregistré.</string>
+    <string name="error_username_storage">Une erreur est survenue pendant l\'enregistrement du nom d\'utilisateur.</string>
+    <string name="logout">Déconnexion</string>
+    <string name="info_logout_successful">Déconnexion réussie.</string>
+    <string name="info_map_initialization">Initialisation de MapActivity.</string>
+</resources>
