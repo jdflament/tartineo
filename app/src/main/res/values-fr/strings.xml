@@ -56,4 +56,6 @@
     <string name="info_friend_removal">Cet ami a été supprimé avec succès.</string>
     <string name="error_friend_removal">Une erreur est survenue pendant la suppression de votre ami.</string>
     <string name="friend_list">Liste d\'amis</string>
+    <string name="info_current_location">Position actuelle :</string>
+    <string name="error_location_not_found">Localisation non trouvée.</string>
 </resources>
