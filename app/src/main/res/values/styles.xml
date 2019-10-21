@@ -33,4 +33,9 @@
         <item name="android:textSize">12sp</item>
         <item name="android:layout_marginHorizontal">15dp</item>
     </style>
+
+    <style name="link" parent="@style/Widget.AppCompat.Button.Borderless">
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_marginHorizontal">15dp</item>
+    </style>
 </resources>

@@ -87,17 +87,23 @@
                 android:textColor="@color/white"
                 android:onClick="login" />
 
-            <TextView
-                android:id="@+id/textView"
+            <Button
+                android:id="@+id/login_register_page_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                style="@style/text"
+                style="@style/link"
                 android:textAlignment="center"
                 android:text="@string/register_now"
                 android:onClick="registerPage" />
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/login_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

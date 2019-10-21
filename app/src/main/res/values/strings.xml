@@ -9,8 +9,8 @@
     <string name="error_empty_field">Please fill in the required fields.</string>
     <string name="error_different_passwords">Please specify identical passwords.</string>
     <string name="error_password_length">Password must be at least 6 characters.</string>
-    <string name="error_incorrect_email_or_password">Email or password is incorrect.</string>
-    <string name="info_registration_successful">Registration successful.</string>
+    <string name="error_registration_failed">Registration failed! Please try again later.</string>
+    <string name="info_registration_successful">Registration successful. An email has been set to your email address. Please verify your account.</string>
     <string name="info_register_button_fired">Register button fired.</string>
     <string name="login">Login</string>
     <string name="registration">Registration</string>
@@ -19,4 +19,13 @@
     <string name="info_register_initialization">RegisterActivity initialization.</string>
     <string name="info_login_initialization">LoginActivity initialization.</string>
     <string name="info_user_already_logged_in">User already logged in.</string>
+    <string name="error_empty_email">Please fill in your email address.</string>
+    <string name="error_empty_password">Please fill in your password.</string>
+    <string name="info_login_successful">Login successful.</string>
+    <string name="error_login_failed">Login failed! Please try again later.</string>
+    <string name="info_username_storage">The username has been saved.</string>
+    <string name="error_username_storage">An error occured during the username storage.</string>
+    <string name="logout">Logout</string>
+    <string name="info_logout_successful">Logout successful.</string>
+    <string name="info_map_initialization">MapActivity initialization.</string>
 </resources>
