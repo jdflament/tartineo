@@ -28,5 +28,13 @@
     <string name="error_username_storage">Une erreur est survenue pendant l\'enregistrement du nom d\'utilisateur.</string>
     <string name="logout">Déconnexion</string>
     <string name="info_logout_successful">Déconnexion réussie.</string>
-    <string name="info_map_initialization">Initialisation de MapActivity.</string>
+    <string name="info_map_initialization">Initialisation de MapFragment.</string>
+    <string name="friends">Amis</string>
+    <string name="map">Carte</string>
+    <string name="parameters">Paramètres</string>
+    <string name="enemies">Ennemis</string>
+    <string name="info_main_initialization">Initialisation de MainActivity.</string>
+    <string name="info_enemies_initialization">Initialisation de EnemiesFragment.</string>
+    <string name="info_friends_initialization">Initialisation de FriendsFragment.</string>
+    <string name="info_parameters_initialization">Initialisation de ParametersFragment.</string>
 </resources>

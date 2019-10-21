@@ -59,7 +59,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (firebaseAuth.getCurrentUser() != null) {
             Log.i(REGISTER_TAG, getStringRes(R.string.info_user_already_logged_in));
 
-            startActivity(new Intent(getApplicationContext(), MapActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
         }
     }
 
@@ -127,7 +127,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
 
-                    startActivity(new Intent(getApplicationContext(), MapActivity.class));
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
                     finish();
                 }

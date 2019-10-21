@@ -27,5 +27,13 @@
     <string name="error_username_storage">An error occured during the username storage.</string>
     <string name="logout">Logout</string>
     <string name="info_logout_successful">Logout successful.</string>
-    <string name="info_map_initialization">MapActivity initialization.</string>
+    <string name="info_map_initialization">MapFragment initialization.</string>
+    <string name="map">Map</string>
+    <string name="friends">Friends</string>
+    <string name="enemies">Enemies</string>
+    <string name="parameters">Parameters</string>
+    <string name="info_main_initialization">MainActivity initialization.</string>
+    <string name="info_enemies_initialization">EnemiesFragment initialization.</string>
+    <string name="info_friends_initialization">FriendsFragment initialization.</string>
+    <string name="info_parameters_initialization">ParametersFragment initialization.</string>
 </resources>

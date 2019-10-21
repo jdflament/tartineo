@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         if (firebaseAuth.getCurrentUser() != null) {
             Log.i(LOGIN_TAG, getStringRes(R.string.info_user_already_logged_in));
 
-            startActivity(new Intent(getApplicationContext(), MapActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
         }
     }
 
@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(), getStringRes(R.string.info_login_successful), Toast.LENGTH_LONG).show();
 
-                    startActivity(new Intent(getApplicationContext(), MapActivity.class));
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 }
                 else {
                     Log.w(LOGIN_TAG, getStringRes(R.string.error_login_failed), task.getException());
