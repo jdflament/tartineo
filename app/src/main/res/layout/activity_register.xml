@@ -113,5 +113,11 @@
                 android:onClick="register" />
         </LinearLayout>
 
+        <ProgressBar
+            android:id="@+id/register_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

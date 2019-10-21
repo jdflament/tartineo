@@ -63,6 +63,8 @@ public class LoginActivity extends AppCompatActivity {
         String email = emailText.getText().toString();
         String password = passwordText.getText().toString();
 
+        progressBar.setVisibility(View.VISIBLE);
+
         if (TextUtils.isEmpty(email)) {
             Log.e(LOGIN_TAG, getStringRes(R.string.error_empty_email));
 
@@ -82,12 +84,12 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                progressBar.setVisibility(View.GONE);
+
                 if (task.isSuccessful()) {
                     Log.i(LOGIN_TAG, getStringRes(R.string.info_login_successful));
 
                     Toast.makeText(getApplicationContext(), getStringRes(R.string.info_login_successful), Toast.LENGTH_LONG).show();
-
-                    progressBar.setVisibility(View.GONE);
 
                     startActivity(new Intent(getApplicationContext(), MapActivity.class));
                 }
@@ -95,8 +97,6 @@ public class LoginActivity extends AppCompatActivity {
                     Log.w(LOGIN_TAG, getStringRes(R.string.error_login_failed), task.getException());
 
                     Toast.makeText(getApplicationContext(), getStringRes(R.string.error_login_failed), Toast.LENGTH_LONG).show();
-
-                    progressBar.setVisibility(View.GONE);
                 }
             }
         });

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -17,7 +18,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
@@ -35,6 +35,8 @@ public class RegisterActivity extends AppCompatActivity {
     EditText usernameText, emailText, passwordText, passwordConfirmationText;
 
     Button registerButton, backButton;
+
+    ProgressBar progressBar;
 
     FirebaseAuth firebaseAuth;
 
@@ -69,6 +71,8 @@ public class RegisterActivity extends AppCompatActivity {
      */
     public void register(View view) {
         Log.i(REGISTER_TAG, getStringRes(R.string.info_register_button_fired));
+
+        progressBar.setVisibility(View.VISIBLE);
 
         final String username = usernameText.getText().toString();
         String email = emailText.getText().toString();
@@ -108,6 +112,8 @@ public class RegisterActivity extends AppCompatActivity {
         firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                progressBar.setVisibility(View.GONE);
+
                 // Redirection sur l'activité principale et enregistrement en base en cas de succès.
                 if (task.isSuccessful()) {
                     Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
@@ -181,6 +187,9 @@ public class RegisterActivity extends AppCompatActivity {
         // Boutons
         registerButton = findViewById(R.id.register_submit_button);
         backButton = findViewById(R.id.register_back_button);
+
+        // Progress bar
+        progressBar = findViewById(R.id.register_progress_bar);
     }
 
     /**
