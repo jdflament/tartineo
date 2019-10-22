@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,11 +27,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import insset.ccm2.tartineo.models.LocationModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -40,11 +42,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int LOCATION_REQUEST_CODE = 101;
 
+    // Location
     private Location currentLocation;
-
     private FusedLocationProviderClient fusedLocationProviderClient;
 
+    // Map
     private SupportMapFragment supportMapFragment;
+
+    // Firebase
+    private FirebaseUser firebaseUser;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore database;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,8 +65,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         Log.i(MAP_TAG, getStringRes(R.string.info_map_initialization));
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        supportMapFragment = (SupportMapFragment) MapFragment.this.getChildFragmentManager().findFragmentById(R.id.map);
+        initializeUI();
+
+        initializeFirebase();
 
         checkLocationPermission();
 
@@ -92,6 +101,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     Log.i(MAP_TAG, getStringRes(R.string.info_current_location) + " " + currentLocation.getLatitude() + "/" + currentLocation.getLongitude());
 
                     supportMapFragment.getMapAsync(MapFragment.this);
+
+                    storeLocation(currentLocation);
                 } else{
                     Log.w(MAP_TAG, getStringRes(R.string.error_location_not_found), task.getException());
 
@@ -101,8 +112,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    private void storeLocation(Location location) {
+        LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
+
+        Map<String,Object> locationModelMap = new HashMap<>();
+        locationModelMap.put("location", locationModel);
+
+        database
+                .collection("users")
+                .document(firebaseUser.getUid())
+                .update(locationModelMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.i(MAP_TAG, getStringRes(R.string.info_location_storage));
+                        } else {
+                            Log.w(MAP_TAG, getStringRes(R.string.error_location_storage), task.getException());
+                        }
+                    }
+                });
+    }
+
     /**
-     * Demande l'accès à la position de l'utilisateur s'il ne l'a pas encore accordé.
+     * Demande l'accès à la localisation de l'utilisateur s'il ne l'a pas encore accordé.
      */
     private void checkLocationPermission() {
         if (ActivityCompat.checkSelfPermission(
@@ -118,6 +151,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }, LOCATION_REQUEST_CODE);
             return;
         }
+    }
+
+    /**
+     * Initialise les composants de la vue.
+     */
+    private void initializeUI() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        supportMapFragment = (SupportMapFragment) MapFragment.this.getChildFragmentManager().findFragmentById(R.id.map);
+    }
+
+    /**
+     * Initialise les composants de Firebase.
+     */
+    private void initializeFirebase() {
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = firebaseAuth.getCurrentUser();
+        database = FirebaseFirestore.getInstance();
     }
 
     /**
