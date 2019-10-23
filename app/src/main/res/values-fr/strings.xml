@@ -38,4 +38,9 @@
     <string name="info_friends_initialization">Initialisation de FriendsFragment.</string>
     <string name="info_parameters_initialization">Initialisation de ParametersFragment.</string>
     <string name="error_user_not_logged_in">Utilisateur non connecté.</string>
+    <string name="add">Ajouter</string>
+    <string name="invite_friends">Inviter des amis</string>
+    <string name="info_add_friend_button_fired">Bouton ajout d\'ami déclenché.</string>
+    <string name="info_friend_list_storage">La liste d\'amis a été enregistrée.</string>
+    <string name="error_friend_list_storage">Une erreur est survenue pendant l\'enregistrement de la liste d\'amis.</string>
 </resources>

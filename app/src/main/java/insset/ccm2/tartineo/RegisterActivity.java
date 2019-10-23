@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import insset.ccm2.tartineo.models.User;
@@ -42,6 +43,8 @@ public class RegisterActivity extends AppCompatActivity {
     // Services
     AuthService authService;
     UserService userService;
+
+    ArrayList<String> friendList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +98,8 @@ public class RegisterActivity extends AppCompatActivity {
                     // Ajoute le nom d'utilisateur au nouvel utilisateur enregistré.
                     FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
                     storeUsername(firebaseUser, username);
+
+                    // createFriendList(firebaseUser);
 
                     // Envoi l'email de vérification au nouvel utilisateur enregistré.
                     Objects.requireNonNull(firebaseUser).sendEmailVerification();
@@ -182,6 +187,25 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
                         } else {
                             Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void createUserRelations(FirebaseUser firebaseUser) {
+        friendList = new ArrayList<String>();
+
+        database
+                .collection("relations")
+                .document(firebaseUser.getUid())
+                .set(friendList)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.i(REGISTER_TAG, getStringRes(R.string.info_friend_list_storage));
+                        } else {
+                            Log.w(REGISTER_TAG, getStringRes(R.string.error_friend_list_storage), task.getException());
                         }
                     }
                 });
