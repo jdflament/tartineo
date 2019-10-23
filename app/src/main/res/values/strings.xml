@@ -42,4 +42,6 @@
     <string name="info_add_friend_button_fired">Add friend button fired.</string>
     <string name="info_friend_list_storage">The friend list has been saved.</string>
     <string name="error_friend_list_storage">An error occured  during the friend list storage.</string>
+    <string name="info_user_relations_storage">The user relations has been saved.</string>
+    <string name="error_user_relations_storage">An error occured during the user relations storage.</string>
 </resources>

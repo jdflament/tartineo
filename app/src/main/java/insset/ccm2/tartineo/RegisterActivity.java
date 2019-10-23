@@ -20,9 +20,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
+import insset.ccm2.tartineo.models.RelationModel;
 import insset.ccm2.tartineo.models.User;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.UserService;
@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     AuthService authService;
     UserService userService;
 
-    ArrayList<String> friendList;
+    RelationModel relation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +99,8 @@ public class RegisterActivity extends AppCompatActivity {
                     FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
                     storeUsername(firebaseUser, username);
 
-                    // createFriendList(firebaseUser);
+                    // Ajoute une collection "relations" au nouvel utilisateur enregistré.
+                    createUserRelations(firebaseUser);
 
                     // Envoi l'email de vérification au nouvel utilisateur enregistré.
                     Objects.requireNonNull(firebaseUser).sendEmailVerification();
@@ -192,20 +193,26 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Créer un collection "relations" pour l'utilisateur.
+     * Cette collection comprend une liste d'amis et d'ennemis.
+     *
+     * @param firebaseUser The Firebase User.
+     */
     private void createUserRelations(FirebaseUser firebaseUser) {
-        friendList = new ArrayList<String>();
+        relation = new RelationModel();
 
         database
                 .collection("relations")
                 .document(firebaseUser.getUid())
-                .set(friendList)
+                .set(relation)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Log.i(REGISTER_TAG, getStringRes(R.string.info_friend_list_storage));
+                            Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
                         } else {
-                            Log.w(REGISTER_TAG, getStringRes(R.string.error_friend_list_storage), task.getException());
+                            Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), task.getException());
                         }
                     }
                 });

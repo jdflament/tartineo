@@ -43,4 +43,6 @@
     <string name="info_add_friend_button_fired">Bouton ajout d\'ami déclenché.</string>
     <string name="info_friend_list_storage">La liste d\'amis a été enregistrée.</string>
     <string name="error_friend_list_storage">Une erreur est survenue pendant l\'enregistrement de la liste d\'amis.</string>
+    <string name="info_user_relations_storage">Les relations de l\'utilisateur ont été enregistrée.</string>
+    <string name="error_user_relations_storage">Une erreur est survenue pendant l\'enregistrement des relations de l\'utilisateur.</string>
 </resources>

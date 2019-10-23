@@ -20,19 +20,20 @@ import insset.ccm2.tartineo.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import insset.ccm2.tartineo.models.RelationModel;
+import insset.ccm2.tartineo.services.RelationService;
 
 public class FriendsFragment extends Fragment {
     private final static String FRIENDS_TAG = "FRIENDS_FRAGMENT";
 
     Dialog addfriendsDialog;
-
-    List<String> friendsList;
 
     EditText usernameText;
 
@@ -41,6 +42,8 @@ public class FriendsFragment extends Fragment {
     FirebaseAuth firebaseAuth;
 
     FirebaseFirestore database;
+
+    RelationModel userRelations;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,9 +94,8 @@ public class FriendsFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.i(FRIENDS_TAG, document.getId());
 
-                                // friendsList = (List<String>) document.get("friends");
-
-                                // storeFriend(document.getId());
+                                getUserRelations();
+                                storeFriend(document.getId());
                             }
                         } else {
                             Log.w(FRIENDS_TAG, "Error getting documents: ", task.getException());
@@ -107,30 +109,41 @@ public class FriendsFragment extends Fragment {
      *
      * @param userId
      */
-    private void storeFriend(String userId) {
+    private void  storeFriend(String userId) {
+        RelationService.getInstance().addFriend(
+                firebaseAuth.getCurrentUser().getUid(),
+                userId
+        ).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_list_storage));
+                } else {
+                    Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_list_storage), task.getException());
+                }
+            }
+        });
+    }
 
-        // Si la liste d'amis existe, ajoute le nouvel ami
-        // Sinon je créee la liste avec le nouvel ami
-        if(friendsList != null) {
-            friendsList.add(userId);
-        } else {
-            List<String> newFriendsList = new ArrayList<String>();
-            newFriendsList.add(userId);
-
-            friendsList = newFriendsList;
-        }
-
+    /**
+     * Récupère les relations de l'utilisateur courant.
+     */
+    private void getUserRelations() {
         database
                 .collection("relations")
                 .document(firebaseAuth.getCurrentUser().getUid())
-                .update("friends", userId)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.i(FRIENDS_TAG, getStringRes(R.string.info_username_storage));
+                            DocumentSnapshot doc = task.getResult();
+
+                            userRelations = new RelationModel();
+                            userRelations.setFriendList((ArrayList<String>) doc.get("friendList"));
+                            userRelations.setEnemyList((ArrayList<String>) doc.get("enemyList"));
                         } else {
-                            Log.w(FRIENDS_TAG, getStringRes(R.string.error_username_storage), task.getException());
+
                         }
                     }
                 });
