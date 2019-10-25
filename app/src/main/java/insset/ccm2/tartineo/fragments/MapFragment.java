@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +18,16 @@ import androidx.fragment.app.Fragment;
 
 import insset.ccm2.tartineo.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import insset.ccm2.tartineo.models.LocationModel;
+import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.UserService;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -42,17 +49,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int LOCATION_REQUEST_CODE = 101;
 
+    private static final long UPDATE_INTERVAL = 5000, FASTEST_INTERVAL = 5000;
+
     // Location
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     // Map
     private SupportMapFragment supportMapFragment;
+    private Marker currentUserMarker;
 
-    // Firebase
-    private FirebaseUser firebaseUser;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore database;
+    // Services
+    private AuthService authService;
+    private UserService userService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,15 +72,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.i(MAP_TAG, getStringRes(R.string.info_map_initialization));
-
-        initializeUI();
-
-        initializeFirebase();
+        initialize();
 
         checkLocationPermission();
 
         fetchLastLocation();
+
+        requestLocationUpdates();
     }
 
     @Override
@@ -79,31 +86,64 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
 
         //MarkerOptions are used to create a new Marker.You can specify location, title etc with MarkerOptions
-        MarkerOptions markerOptions = new MarkerOptions().position(latLng).title("You are Here");
+        MarkerOptions marker = new MarkerOptions().position(latLng).title("You are Here");
 
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
         //Adding the created the marker on the map
-        googleMap.addMarker(markerOptions);
+        currentUserMarker = googleMap.addMarker(marker);
+    }
+
+    /**
+     * Demande de mettre à jour la localisation de l'utilisateur courant toutes les 5 secondes.
+     */
+    private void requestLocationUpdates() {
+        LocationRequest locationRequest = new LocationRequest()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL)
+        ;
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    Log.e(MAP_TAG, getStringRes(R.string.error_location_not_found));
+
+                    return;
+                }
+                
+                for (Location location : locationResult.getLocations()) {
+                    // Met à jour le marker et la base de données uniquement si la nouvelle localisation est différente de l'ancienne.
+                    if (currentLocation.getLongitude() != location.getLongitude() || currentLocation.getLatitude() != location.getLatitude()) {
+                        LatLng latLng = new LatLng(location.getLatitude(),location.getLongitude());
+
+                        currentUserMarker.setPosition(latLng);
+                        storeLocation(location);
+                        currentLocation = location;
+
+                        Log.d(MAP_TAG, getStringRes(R.string.info_location_updated));
+                    }
+                }
+            };
+        };
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
     /**
      * Récupère la dernière localisation de l'utilisateur.
      */
-    private void fetchLastLocation(){
-        final Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+    private void fetchLastLocation() {
+        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-
-                    Log.i(MAP_TAG, getStringRes(R.string.info_current_location) + " " + currentLocation.getLatitude() + "/" + currentLocation.getLongitude());
-
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful()) {
+                    currentLocation = task.getResult();
                     supportMapFragment.getMapAsync(MapFragment.this);
 
                     storeLocation(currentLocation);
-                } else{
+                } else {
                     Log.w(MAP_TAG, getStringRes(R.string.error_location_not_found), task.getException());
 
                     Toast.makeText(getActivity(), getStringRes(R.string.error_location_not_found),Toast.LENGTH_SHORT).show();
@@ -112,26 +152,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    /**
+     * Enregistre la localisation de l'utilisateur courant en base de données.
+     *
+     * @param location A given location.
+     */
     private void storeLocation(Location location) {
-        LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
-
-        Map<String,Object> locationModelMap = new HashMap<>();
-        locationModelMap.put("location", locationModel);
-
-        database
-                .collection("users")
-                .document(firebaseUser.getUid())
-                .update(locationModelMap)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.i(MAP_TAG, getStringRes(R.string.info_location_storage));
-                        } else {
-                            Log.w(MAP_TAG, getStringRes(R.string.error_location_storage), task.getException());
-                        }
-                    }
-                });
+        userService.updateLocation(authService.getCurrentUser().getUid(), location).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.i(MAP_TAG, getStringRes(R.string.info_location_storage));
+                } else {
+                    Log.w(MAP_TAG, getStringRes(R.string.error_location_storage), task.getException());
+                }
+            }
+        });
     }
 
     /**
@@ -156,18 +192,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Initialise les composants de la vue.
      */
-    private void initializeUI() {
+    private void initialize() {
+        Log.i(MAP_TAG, getStringRes(R.string.info_map_initialization));
+
+        // Composants
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         supportMapFragment = (SupportMapFragment) MapFragment.this.getChildFragmentManager().findFragmentById(R.id.map);
-    }
 
-    /**
-     * Initialise les composants de Firebase.
-     */
-    private void initializeFirebase() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        database = FirebaseFirestore.getInstance();
+        // Services
+        authService = AuthService.getInstance();
+        userService = UserService.getInstance();
     }
 
     /**

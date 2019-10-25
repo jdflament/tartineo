@@ -60,4 +60,5 @@
     <string name="error_location_not_found">Localisation non trouvée.</string>
     <string name="info_location_storage">La localisation a été enregistrée.</string>
     <string name="error_location_storage">Une erreur est survenue pendant l\'enregistrement de la localisation.</string>
+    <string name="info_location_updated">La localisation a été mise à jour.</string>
 </resources>

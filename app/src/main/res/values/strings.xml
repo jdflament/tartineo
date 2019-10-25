@@ -59,4 +59,5 @@
     <string name="error_location_not_found">Location not found.</string>
     <string name="info_location_storage">The location has been saved.</string>
     <string name="error_location_storage">An error occured during the location storage.</string>
+    <string name="info_location_updated">Location has been updated.</string>
 </resources>
