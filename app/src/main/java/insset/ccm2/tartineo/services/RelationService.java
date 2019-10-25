@@ -1,16 +1,12 @@
 package insset.ccm2.tartineo.services;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import insset.ccm2.tartineo.R;
 import insset.ccm2.tartineo.models.RelationModel;
 
 public class RelationService {
@@ -24,26 +20,26 @@ public class RelationService {
     }
 
     /**
-     * Set a new Relation in database by document ID.
+     * Set a new Relation in database by User ID.
      *
-     * @param documentId The document ID.
+     * @param userId The User ID.
      * @param relation The relation object.
      *
      * @return Task
      */
-    public Task<Void> set(String documentId, RelationModel relation) {
-        return FirestoreService.getInstance().set(collectionPath, documentId, relation);
+    public Task<Void> set(String userId, RelationModel relation) {
+        return FirestoreService.getInstance().set(collectionPath, userId, relation);
     }
 
     /**
-     * Get a Relation by documentId.
+     * Get User relations.
      *
-     * @param documentId The document ID.
+     * @param userId The User ID.
      *
      * @return Task with DocumentSnapshot response.
      */
-    public Task<DocumentSnapshot> get(String documentId) {
-        return FirestoreService.getInstance().getDocument(collectionPath, documentId);
+    public Task<DocumentSnapshot> get(String userId) {
+        return FirestoreService.getInstance().getDocument(collectionPath, userId);
     }
 
     /**
@@ -55,14 +51,13 @@ public class RelationService {
      * @return Task
      */
     public Task<Void> addFriend(String documentId, String userId) {
-        RelationModel relation = new RelationModel();
-        relation.getFriendList().add(userId);
+        final Map<String, Object> addUserToFriendList= new HashMap<>();
+        addUserToFriendList.put("friendList", FieldValue.arrayUnion(userId));
 
-        return FirestoreService.getInstance().updateByKeyAndValue(
+        return FirestoreService.getInstance().update(
                 collectionPath,
                 documentId,
-                "friendList",
-                relation.getFriendList()
+                addUserToFriendList
         );
     }
 }
