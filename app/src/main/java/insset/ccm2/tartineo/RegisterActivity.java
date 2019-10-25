@@ -23,6 +23,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Objects;
 
 import insset.ccm2.tartineo.models.User;
+import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.UserService;
 
 /**
  * Activité contenant l'ensemble de la logique liée
@@ -32,31 +34,24 @@ public class RegisterActivity extends AppCompatActivity {
 
     private final static String REGISTER_TAG = "REGISTER_ACTIVITY";
 
+    // Composants
     EditText usernameText, emailText, passwordText, passwordConfirmationText;
-
     Button registerButton, backButton;
-
     ProgressBar progressBar;
 
-    FirebaseAuth firebaseAuth;
-
-    FirebaseFirestore database;
+    // Services
+    AuthService authService;
+    UserService userService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        Log.i(REGISTER_TAG, getStringRes(R.string.info_register_initialization));
-
-        initializeUI();
-
-        // Firebase
-        firebaseAuth = FirebaseAuth.getInstance();
-        database = FirebaseFirestore.getInstance();
+        initialize();
 
         // Vérifie si l'utilisateur est déjà connecté.
-        if (firebaseAuth.getCurrentUser() != null) {
+        if (authService.getCurrentUser() != null) {
             Log.i(REGISTER_TAG, getStringRes(R.string.info_user_already_logged_in));
 
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
@@ -79,37 +74,16 @@ public class RegisterActivity extends AppCompatActivity {
         String password = passwordText.getText().toString();
         String passwordConfirmation = passwordConfirmationText.getText().toString();
 
-        // Vérification si les champs sont remplis.
-        if (TextUtils.isEmpty(username)|| TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirmation)) {
-            Log.e(REGISTER_TAG, getStringRes(R.string.error_empty_field));
+        Boolean isValidForm = checkRegisterForm(username, email, password, passwordConfirmation);
 
-            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_field), Toast.LENGTH_SHORT).show();
-
-            return;
-        }
-
-        // Vérification de la taille du mot de passe.
-        if (password.length() < 6) {
-            Log.e(REGISTER_TAG, getStringRes(R.string.error_password_length));
-
-            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_password_length), Toast.LENGTH_SHORT).show();
-
-            return;
-        }
-
-        // Vérification de l'égalité des champs mot de passe.
-        if (!TextUtils.equals(password, passwordConfirmation)) {
-            Log.e(REGISTER_TAG, getStringRes(R.string.error_different_passwords));
-
-            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_different_passwords), Toast.LENGTH_SHORT).show();
-
+        if (!isValidForm) {
             return;
         }
 
         /*
          * Création d'un Utilisateur Firebase.
          */
-        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        authService.registerWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(View.GONE);
@@ -150,6 +124,47 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
+     * Check if the register form is valid.
+     *
+     * @param username The username in the form.
+     * @param email The email in the form.
+     * @param password The password in the form.
+     * @param passwordConfirmation The password confirmation in the form.
+     *
+     * @return a boolean, false if the form is invalid.
+     */
+    private Boolean checkRegisterForm(String username, String email, String password, String passwordConfirmation) {
+        // Vérification si les champs sont remplis.
+        if (TextUtils.isEmpty(username)|| TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirmation)) {
+            Log.e(REGISTER_TAG, getStringRes(R.string.error_empty_field));
+
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_field), Toast.LENGTH_SHORT).show();
+
+            return false;
+        }
+
+        // Vérification de la taille du mot de passe.
+        if (password.length() < 6) {
+            Log.e(REGISTER_TAG, getStringRes(R.string.error_password_length));
+
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_password_length), Toast.LENGTH_SHORT).show();
+
+            return false;
+        }
+
+        // Vérification de l'égalité des champs mot de passe.
+        if (!TextUtils.equals(password, passwordConfirmation)) {
+            Log.e(REGISTER_TAG, getStringRes(R.string.error_different_passwords));
+
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_different_passwords), Toast.LENGTH_SHORT).show();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Enregistre un nom d'utilisateur en base de données.
      *
      * @param firebaseUser The Firebase User.
@@ -158,10 +173,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void storeUsername(FirebaseUser firebaseUser, String username) {
         User newUser = new User(username);
 
-        database
-                .collection("users")
-                .document(firebaseUser.getUid())
-                .set(newUser)
+        userService
+                .set(firebaseUser.getUid(), newUser)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -175,21 +188,25 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     /**
-     * Initialise les composants de la vue.
+     * Initialise les variables nécessaires.
      */
-    private void initializeUI() {
-        // Champs
+    private void initialize() {
+        Log.i(REGISTER_TAG, getStringRes(R.string.info_register_initialization));
+
+        // Components
         usernameText = findViewById(R.id.register_username_text);
         emailText = findViewById(R.id.register_email_text);
         passwordText = findViewById(R.id.register_password_text);
         passwordConfirmationText = findViewById(R.id.register_password_confirmation_text);
 
-        // Boutons
         registerButton = findViewById(R.id.register_submit_button);
         backButton = findViewById(R.id.register_back_button);
 
-        // Progress bar
         progressBar = findViewById(R.id.register_progress_bar);
+
+        // Services
+        authService = AuthService.getInstance();
+        userService = UserService.getInstance();
     }
 
     /**

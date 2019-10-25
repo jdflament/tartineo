@@ -1,4 +1,4 @@
-package insset.ccm2.tartineo;
+package insset.ccm2.tartineo.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,22 +13,22 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import insset.ccm2.tartineo.R;
+import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.UserService;
 
 public class ParametersFragment extends Fragment {
 
     private final static String PARAMETERS_TAG = "PARAMETERS_FRAGMENT";
 
-    TextView welcomeUserText;
+    // Composants
+    private TextView welcomeUserText;
 
-    FirebaseUser firebaseUser;
-
-    FirebaseAuth firebaseAuth;
-
-    FirebaseFirestore database;
+    // Services
+    private AuthService authService;
+    private UserService userService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,12 +41,10 @@ public class ParametersFragment extends Fragment {
 
         Log.i(PARAMETERS_TAG, getStringRes(R.string.info_parameters_initialization));
 
-        initializeUI(view);
-
-        initializeFirebase();
+        initialize(view);
 
         // Récupère le nom d'utilisateur de l'utilisateur Firebase actuellement connecté.
-        database.collection("users").document(firebaseUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        userService.get(authService.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -61,17 +59,13 @@ public class ParametersFragment extends Fragment {
     /**
      * Initialise les composants de la vue.
      */
-    private void initializeUI(View view) {
+    private void initialize(View view) {
+        // Composants
         welcomeUserText = view.findViewById(R.id.welcome_user_text);
-    }
 
-    /**
-     * Initialise les composants de Firebase.
-     */
-    private void initializeFirebase() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        database = FirebaseFirestore.getInstance();
+        // Services
+        authService = AuthService.getInstance();
+        userService = UserService.getInstance();
     }
 
     /**
