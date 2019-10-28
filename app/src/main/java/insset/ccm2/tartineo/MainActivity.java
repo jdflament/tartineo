@@ -12,34 +12,37 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+
+import insset.ccm2.tartineo.fragments.EnemiesFragment;
+import insset.ccm2.tartineo.fragments.FriendsFragment;
+import insset.ccm2.tartineo.fragments.MapFragment;
+import insset.ccm2.tartineo.fragments.ParametersFragment;
+import insset.ccm2.tartineo.services.AuthService;
 
 public class MainActivity extends AppCompatActivity {
 
     private final static String MAIN_TAG = "MAIN_ACTIVITY";
 
+    // Composants
     BottomNavigationView bottomNavigationView;
 
-    FirebaseUser firebaseUser;
-
-    FirebaseAuth firebaseAuth;
-
-    FirebaseFirestore database;
+    // Services
+    AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i(MAIN_TAG, getStringRes(R.string.info_main_initialization));
+        initialize();
 
-        initializeUI();
+        if (authService.getCurrentUser().isAnonymous()) {
+            Log.e(MAIN_TAG, getStringRes(R.string.error_user_not_logged_in));
 
-        initializeFirebase();
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+        }
 
-        // Load MapFragment by default
+        // Charge le fragment de carte par défaut.
         getSupportFragmentManager().beginTransaction().replace(R.id.activity_main_frame_layout, new MapFragment()).commit();
     }
 
@@ -50,14 +53,11 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void logout(View view) {
-        // Déconnecte l'utilisateur de Firebase.
-        firebaseAuth.signOut();
+        // Déconnecte l'utilisateur courant.
+        authService.logout();
 
         // Redirige vers l'activité de connexion.
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
-        Log.i(MAIN_TAG, getStringRes(R.string.info_logout_successful));
-
         Toast.makeText(getApplicationContext(), getStringRes(R.string.info_logout_successful), Toast.LENGTH_LONG).show();
     }
 
@@ -95,18 +95,15 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Initialise les composants de la vue.
      */
-    private void initializeUI() {
+    private void initialize() {
+        Log.i(MAIN_TAG, getStringRes(R.string.info_main_initialization));
+
+        // Composants
         bottomNavigationView = findViewById(R.id.activity_main_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
-    }
 
-    /**
-     * Initialise les composants de Firebase.
-     */
-    private void initializeFirebase() {
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        database = FirebaseFirestore.getInstance();
+        // Services
+        authService = AuthService.getInstance();
     }
 
     /**

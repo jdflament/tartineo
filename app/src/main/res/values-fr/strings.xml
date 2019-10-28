@@ -37,4 +37,5 @@
     <string name="info_enemies_initialization">Initialisation de EnemiesFragment.</string>
     <string name="info_friends_initialization">Initialisation de FriendsFragment.</string>
     <string name="info_parameters_initialization">Initialisation de ParametersFragment.</string>
+    <string name="error_user_not_logged_in">Utilisateur non connecté.</string>
 </resources>

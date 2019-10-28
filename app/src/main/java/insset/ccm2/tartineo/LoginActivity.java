@@ -16,7 +16,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
+
+import insset.ccm2.tartineo.services.AuthService;
 
 /**
  * Activité contenant l'ensemble de la logique liée
@@ -26,27 +27,23 @@ public class LoginActivity extends AppCompatActivity {
 
     private final static String LOGIN_TAG = "LOGIN_ACTIVITY";
 
+    // Composants
     EditText emailText, passwordText;
-
     Button loginButton, registerPageButton;
-
     ProgressBar progressBar;
 
-    FirebaseAuth firebaseAuth;
+    // Services
+    AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Log.i(LOGIN_TAG, getStringRes(R.string.info_login_initialization));
-
-        initializeUI();
-
-        firebaseAuth = FirebaseAuth.getInstance();
+        initialize();
 
         // Vérifie si l'utilisateur est déjà connecté.
-        if (firebaseAuth.getCurrentUser() != null) {
+        if (authService.getCurrentUser() != null) {
             Log.i(LOGIN_TAG, getStringRes(R.string.info_user_already_logged_in));
 
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
@@ -65,23 +62,13 @@ public class LoginActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        if (TextUtils.isEmpty(email)) {
-            Log.e(LOGIN_TAG, getStringRes(R.string.error_empty_email));
+        Boolean isValidForm = checkLoginForm(email, password);
 
-            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_email), Toast.LENGTH_LONG).show();
-
+        if (!isValidForm) {
             return;
         }
 
-        if (TextUtils.isEmpty(password)) {
-            Log.e(LOGIN_TAG, getStringRes(R.string.error_empty_password));
-
-            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_password), Toast.LENGTH_LONG).show();
-
-            return;
-        }
-
-        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        authService.loginWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(View.GONE);
@@ -112,19 +99,52 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Initialise les composants de la vue.
+     * Check if the login form is valid.
+     *
+     * @param email The email in the form.
+     * @param password The password in the form.
+     *
+     * @return a boolean, false if the form is invalid.
      */
-    private void initializeUI() {
-        // Champs
+    private Boolean checkLoginForm(String email, String password) {
+        // Vérification de la présence de l'email
+        if (TextUtils.isEmpty(email)) {
+            Log.e(LOGIN_TAG, getStringRes(R.string.error_empty_email));
+
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_email), Toast.LENGTH_LONG).show();
+
+            return false;
+        }
+
+        // Vérification de la présence du mot de passe
+        if (TextUtils.isEmpty(password)) {
+            Log.e(LOGIN_TAG, getStringRes(R.string.error_empty_password));
+
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_empty_password), Toast.LENGTH_LONG).show();
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Initialise les variables nécessaires.
+     */
+    private void initialize() {
+        Log.i(LOGIN_TAG, getStringRes(R.string.info_login_initialization));
+
+        // Composants
         emailText = findViewById(R.id.login_email_text);
         passwordText = findViewById(R.id.login_password_text);
 
-        // Boutons
         loginButton = findViewById(R.id.login_submit_button);
         registerPageButton = findViewById(R.id.login_register_page_button);
 
-        // Progress bar
         progressBar = findViewById(R.id.login_progress_bar);
+
+        // Services
+        authService = AuthService.getInstance();
     }
 
 
