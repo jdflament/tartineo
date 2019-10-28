@@ -11,9 +11,15 @@ import insset.ccm2.tartineo.models.RelationModel;
 
 public class RelationService {
 
+    private static final String collectionPath = "relations";
+
     private static final RelationService instance = new RelationService();
 
-    private static final String collectionPath = "relations";
+    private FirestoreService firestoreService;
+
+    private RelationService() {
+        firestoreService = FirestoreService.getInstance();
+    }
 
     public static RelationService getInstance() {
         return instance;
@@ -28,7 +34,7 @@ public class RelationService {
      * @return Task
      */
     public Task<Void> set(String userId, RelationModel relation) {
-        return FirestoreService.getInstance().set(collectionPath, userId, relation);
+        return firestoreService.set(collectionPath, userId, relation);
     }
 
     /**
@@ -39,7 +45,7 @@ public class RelationService {
      * @return Task with DocumentSnapshot response.
      */
     public Task<DocumentSnapshot> get(String userId) {
-        return FirestoreService.getInstance().getDocument(collectionPath, userId);
+        return firestoreService.getDocument(collectionPath, userId);
     }
 
     /**
@@ -54,7 +60,7 @@ public class RelationService {
         final Map<String, Object> addUserToFriendList= new HashMap<>();
         addUserToFriendList.put("friendList", FieldValue.arrayUnion(userId));
 
-        return FirestoreService.getInstance().update(
+        return firestoreService.update(
                 collectionPath,
                 documentId,
                 addUserToFriendList
