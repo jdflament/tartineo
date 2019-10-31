@@ -16,15 +16,14 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
 import insset.ccm2.tartineo.models.RelationModel;
 import insset.ccm2.tartineo.models.User;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
 /**
@@ -43,6 +42,7 @@ public class RegisterActivity extends AppCompatActivity {
     // Services
     AuthService authService;
     UserService userService;
+    RelationService relationService;
 
     RelationModel relation;
 
@@ -202,10 +202,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void createUserRelations(FirebaseUser firebaseUser) {
         relation = new RelationModel();
 
-        database
-                .collection("relations")
-                .document(firebaseUser.getUid())
-                .set(relation)
+        relationService
+                .set(firebaseUser.getUid(), relation)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {

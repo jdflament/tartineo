@@ -48,4 +48,5 @@
     <string name="info_friend_search_successful">Friend search successful.</string>
     <string name="info_user_not_found">User not found.</string>
     <string name="error_users_already_friend">These users are already friends.</string>
+    <string name="info_get_friend_list">Friend list successfully loaded.</string>
 </resources>

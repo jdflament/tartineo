@@ -49,4 +49,5 @@
     <string name="info_friend_search_successful">" Recherche d'ami réussie."</string>
     <string name="info_user_not_found">Cet utilisateur n\'a pas été trouvé.</string>
     <string name="error_users_already_friend">Ces utilisateurs sont déjà amis.</string>
+    <string name="info_get_friend_list">Liste d\'ami chargé avec succès.</string>
 </resources>
