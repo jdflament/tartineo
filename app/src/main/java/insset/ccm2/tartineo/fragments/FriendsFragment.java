@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -19,17 +18,14 @@ import androidx.fragment.app.Fragment;
 
 import insset.ccm2.tartineo.R;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
+import insset.ccm2.tartineo.adapters.RelationListAdapter;
+import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
@@ -38,11 +34,10 @@ public class FriendsFragment extends Fragment {
     private final static String FRIENDS_TAG = "FRIENDS_FRAGMENT";
 
     // Composants
-    ArrayAdapter<String> arrayAdapter;
-    private ArrayList<String> friendList;
+    private ArrayList<String> friendListIds;
     private Dialog addfriendsDialog;
     private EditText friendsUsernameText;
-    ListView friendsListView;
+    private ListView friendsListView;
 
     // Services
     private AuthService authService;
@@ -80,59 +75,48 @@ public class FriendsFragment extends Fragment {
             return;
         }
 
-        userService.searchByUsername(username).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    // Si la requête est bonne mais qu'aucun utilisateur n'est retourné
-                    if (task.getResult().isEmpty()) {
-                        Log.e(FRIENDS_TAG, getStringRes(R.string.info_user_not_found));
+        userService.searchByUsername(username).addOnSuccessListener(queryDocumentSnapshots -> {
+            // Si la requête est bonne mais qu'aucun utilisateur n'est retourné
+            if (queryDocumentSnapshots.isEmpty()) {
+                Log.e(FRIENDS_TAG, getStringRes(R.string.info_user_not_found));
 
-                        Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_user_not_found), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_user_not_found), Toast.LENGTH_SHORT).show();
+
+                return;
+            }
+
+            // Sinon, parcours des utilisateurs trouvés
+            for (final QueryDocumentSnapshot userByUsername : queryDocumentSnapshots) {
+                Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_search_successful));
+
+                relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+                    friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+
+                    // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
+                    if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
+                        Log.e(FRIENDS_TAG, getStringRes(R.string.error_add_yourself_as_friend));
+
+                        Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_add_yourself_as_friend), Toast.LENGTH_SHORT).show();
 
                         return;
                     }
 
-                    // Sinon, parcours des utilisateurs trouvés
-                    for (final QueryDocumentSnapshot userByUsername : task.getResult()) {
-                        Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_search_successful));
+                    // Vérifie si l'utilisateur trouvé est déjà dans la liste d'ami de l'utilisateur courant
+                    if (friendListIds.indexOf(userByUsername.getId()) != -1) {
+                        Log.e(FRIENDS_TAG, getStringRes(R.string.error_users_already_friend));
 
-                        relationService.get(authService.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot doc = task.getResult();
-                                    friendList = (ArrayList<String>) doc.get("friendList");
+                        Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_users_already_friend), Toast.LENGTH_SHORT).show();
 
-                                    // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
-                                    if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
-                                        Log.e(FRIENDS_TAG, "Error message !");
-
-                                        Toast.makeText(getContext().getApplicationContext(), "Error message !", Toast.LENGTH_SHORT).show();
-
-                                        return;
-                                    }
-
-                                    // Vérifie si l'utilisateur trouvé est déjà dans la liste d'ami de l'utilisateur courant
-                                    if (friendList.indexOf(userByUsername.getId()) != -1) {
-                                        Log.e(FRIENDS_TAG, getStringRes(R.string.error_users_already_friend));
-
-                                        Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_users_already_friend), Toast.LENGTH_SHORT).show();
-
-                                        return;
-                                    }
-
-                                    createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
-                                }
-                            }
-                        });
+                        return;
                     }
-                } else {
-                    Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_search_failed), task.getException());
 
-                    Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_friend_search_failed), Toast.LENGTH_SHORT).show();
-                }
+                    createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
+                });
             }
+        }).addOnFailureListener(exception -> {
+            Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_search_failed), exception);
+
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_friend_search_failed), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -169,27 +153,16 @@ public class FriendsFragment extends Fragment {
         // Ajoute l'utilisateur source dans la liste d'ami de l'utilisateur cible
         final Task<Void> secondFriendshipTask = relationService.addFriend(targetUserId, sourceUserId);
 
-        firstFriendshipTask.continueWithTask(new Continuation<Void, Task<Void>>() {
-            @Override
-            public Task then(@NonNull Task task) throws Exception {
-                return secondFriendshipTask;
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_storage));
+        firstFriendshipTask.continueWithTask(task -> secondFriendshipTask).addOnSuccessListener(aVoid -> {
+            Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_storage));
 
-                getFriendList();
+            getFriendList();
 
-                Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_storage), Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_storage), exception);
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_storage), Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(exception -> {
+            Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_storage), exception);
 
-                Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_friend_storage), Toast.LENGTH_SHORT).show();
-            }
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_friend_storage), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -197,35 +170,24 @@ public class FriendsFragment extends Fragment {
      * Récupère la liste d'ami au chargement de la vue.
      */
     private void getFriendList() {
-        relationService.get(authService.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    Log.i(FRIENDS_TAG, getStringRes(R.string.info_get_friend_list));
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+            Log.i(FRIENDS_TAG, getStringRes(R.string.info_get_friend_list));
 
-                    DocumentSnapshot doc = task.getResult();
-                    friendList = (ArrayList<String>) doc.get("friendList");
+            friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
-                    ArrayList<String> usernameList = new ArrayList<String>();
+            HashMap<String, UserModel> friendList = new HashMap<>();
 
-                    for (int i = 0; i < friendList.size(); i++) {
-                        userService.get(friendList.get(i)).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot doc = task.getResult();
+            for (int i = 0; i < friendListIds.size(); i++) {
+                int index = i;
 
-                                    Log.e(FRIENDS_TAG, String.valueOf(doc.get("username")));
-                                }
-                            }
-                        });
+                userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
+                    friendList.put(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+
+                    if (friendList.size() == friendListIds.size()) {
+                        RelationListAdapter adapter = new RelationListAdapter(friendList);
+                        friendsListView.setAdapter(adapter);
                     }
-
-                    Log.e(FRIENDS_TAG, String.valueOf(usernameList));
-
-                    arrayAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, friendList);
-                    friendsListView.setAdapter(arrayAdapter);
-                }
+                });
             }
         });
     }
@@ -236,12 +198,7 @@ public class FriendsFragment extends Fragment {
     private void initialize(View view) {
         // Composants
         Button friendsModalButton = view.findViewById(R.id.friends_modal_button);
-        friendsModalButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAddFriendModal();
-            }
-        });
+        friendsModalButton.setOnClickListener(v -> showAddFriendModal());
 
         friendsListView = view.findViewById(R.id.friends_list_view);
 
@@ -250,12 +207,7 @@ public class FriendsFragment extends Fragment {
 
         friendsUsernameText = addfriendsDialog.findViewById(R.id.friends_username_text);
         Button friendsSubmitButton = addfriendsDialog.findViewById(R.id.friends_submit_button);
-        friendsSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addFriend();
-            }
-        });
+        friendsSubmitButton.setOnClickListener(v -> addFriend());
 
         // Services
         authService = AuthService.getInstance();

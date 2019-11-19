@@ -26,9 +26,9 @@ public class RelationService {
     }
 
     /**
-     * Set a new Relation in database by User ID.
+     * Set a new Relation in database by UserModel ID.
      *
-     * @param userId The User ID.
+     * @param userId The UserModel ID.
      * @param relation The relation object.
      *
      * @return Task
@@ -38,9 +38,9 @@ public class RelationService {
     }
 
     /**
-     * Get User relations.
+     * Get UserModel relations.
      *
-     * @param userId The User ID.
+     * @param userId The UserModel ID.
      *
      * @return Task with DocumentSnapshot response.
      */
@@ -51,7 +51,7 @@ public class RelationService {
     /**
      * Update the friend list of the given document ID.
      *
-     * @param documentId The User ID.
+     * @param documentId The UserModel ID.
      * @param userId The userId to add in friend list.
      *
      * @return Task

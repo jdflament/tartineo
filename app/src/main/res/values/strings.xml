@@ -42,11 +42,13 @@
     <string name="info_add_friend_button_fired">Add friend button fired.</string>
     <string name="info_friend_storage">This friend has been added successfully.</string>
     <string name="error_friend_storage">An error occured  during the friend storage.</string>
-    <string name="info_user_relations_storage">The user relations has been saved.</string>
-    <string name="error_user_relations_storage">An error occured during the user relations storage.</string>
+    <string name="info_user_relations_storage">The userModel relations has been saved.</string>
+    <string name="error_user_relations_storage">An error occured during the userModel relations storage.</string>
     <string name="error_friend_search_failed">" The friend search failed! This username does not exist."</string>
     <string name="info_friend_search_successful">Friend search successful.</string>
     <string name="info_user_not_found">User not found.</string>
     <string name="error_users_already_friend">These users are already friends.</string>
     <string name="info_get_friend_list">Friend list successfully loaded.</string>
+    <string name="error_add_yourself_as_friend">You cannot add yourself as friend.</string>
+    <string name="error_has_occurred">An error has occurred.</string>
 </resources>

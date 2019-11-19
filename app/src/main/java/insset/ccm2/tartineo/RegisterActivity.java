@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.Objects;
 
 import insset.ccm2.tartineo.models.RelationModel;
-import insset.ccm2.tartineo.models.User;
+import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
@@ -173,14 +173,14 @@ public class RegisterActivity extends AppCompatActivity {
     /**
      * Enregistre un nom d'utilisateur en base de données.
      *
-     * @param firebaseUser The Firebase User.
+     * @param firebaseUser The Firebase UserModel.
      * @param username The unique Username to store.
      */
     private void storeUsername(FirebaseUser firebaseUser, String username) {
-        User newUser = new User(username);
+        UserModel newUserModel = new UserModel(username);
 
         userService
-                .set(firebaseUser.getUid(), newUser)
+                .set(firebaseUser.getUid(), newUserModel)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -188,6 +188,8 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
                         } else {
                             Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
+
+                            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -197,7 +199,7 @@ public class RegisterActivity extends AppCompatActivity {
      * Créer un collection "relations" pour l'utilisateur.
      * Cette collection comprend une liste d'amis et d'ennemis.
      *
-     * @param firebaseUser The Firebase User.
+     * @param firebaseUser The Firebase UserModel.
      */
     private void createUserRelations(FirebaseUser firebaseUser) {
         relation = new RelationModel();
@@ -211,6 +213,8 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
                         } else {
                             Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), task.getException());
+
+                            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
