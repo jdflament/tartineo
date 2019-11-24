@@ -51,4 +51,8 @@
     <string name="info_get_friend_list">Friend list successfully loaded.</string>
     <string name="error_add_yourself_as_friend">You cannot add yourself as friend.</string>
     <string name="error_has_occurred">An error has occurred.</string>
+    <string name="delete">Delete</string>
+    <string name="info_friend_removal">This friend hasThis friend has been removed successfully. been removed</string>
+    <string name="error_friend_removal">An error occured  during the friend removal.</string>
+    <string name="friend_list">"Friends list "</string>
 </resources>

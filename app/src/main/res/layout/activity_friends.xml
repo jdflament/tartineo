@@ -6,44 +6,48 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/friends_modal_button"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/primary"
-            android:onClick="showAddFriendModal"
-            android:text="@string/add_new_friend"
-            android:textColor="@color/white" />
-    </LinearLayout>
+            android:layout_margin="15dp"
+            android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="15dp"
-        android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/friend_list"
+                android:textSize="25sp" />
+        </LinearLayout>
 
-        <ListView
-            android:id="@+id/friends_list_view"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            android:orientation="vertical">
 
+            <ListView
+                android:id="@+id/friends_list_view"
+                android:layout_width="match_parent"
+                android:layout_height="480dp"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/friends_modal_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:background="@drawable/round_button"
+                android:onClick="showAddFriendModal"
+                android:src="@drawable/ic_add_white_24dp" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

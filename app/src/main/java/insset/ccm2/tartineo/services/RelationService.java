@@ -66,4 +66,23 @@ public class RelationService {
                 addUserToFriendList
         );
     }
+
+    /**
+     * Remove the friend list of the given document ID.
+     *
+     * @param documentId The UserModel ID.
+     * @param userId The userId to add in friend list.
+     *
+     * @return Task
+     */
+    public Task<Void> removeFriend(String documentId, String userId) {
+        final Map<String, Object> removeUserToFriendList= new HashMap<>();
+        removeUserToFriendList.put("friendList", FieldValue.arrayRemove(userId));
+
+        return firestoreService.update(
+                collectionPath,
+                documentId,
+                removeUserToFriendList
+        );
+    }
 }

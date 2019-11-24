@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -167,6 +168,32 @@ public class FriendsFragment extends Fragment {
     }
 
     /**
+     * Supprime une relation entre deux utilisateurs.
+     *
+     * @param sourceUserId The source user ID.
+     * @param targetUserId The target user ID.
+     */
+    public void removeFriendship(String sourceUserId, String targetUserId) {
+        // Supprime l'utilisateur cible dans la liste d'ami de l'utilisateur source
+        final Task<Void> firstFriendshipTask = relationService.removeFriend(sourceUserId, targetUserId);
+
+        // Supprime l'utilisateur source dans la liste d'ami de l'utilisateur cible
+        final Task<Void> secondFriendshipTask = relationService.removeFriend(targetUserId, sourceUserId);
+
+        firstFriendshipTask.continueWithTask(task -> secondFriendshipTask).addOnSuccessListener(aVoid -> {
+            Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_removal));
+
+            getFriendList();
+
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_removal), Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(exception -> {
+            Log.w(FRIENDS_TAG, getStringRes(R.string.error_friend_removal), exception);
+
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_friend_removal), Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    /**
      * Récupère la liste d'ami au chargement de la vue.
      */
     private void getFriendList() {
@@ -184,7 +211,7 @@ public class FriendsFragment extends Fragment {
                     friendList.put(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
 
                     if (friendList.size() == friendListIds.size()) {
-                        RelationListAdapter adapter = new RelationListAdapter(friendList);
+                        RelationListAdapter adapter = new RelationListAdapter(friendList, FriendsFragment.this);
                         friendsListView.setAdapter(adapter);
                     }
                 });
@@ -197,7 +224,7 @@ public class FriendsFragment extends Fragment {
      */
     private void initialize(View view) {
         // Composants
-        Button friendsModalButton = view.findViewById(R.id.friends_modal_button);
+        ImageButton friendsModalButton = view.findViewById(R.id.friends_modal_button);
         friendsModalButton.setOnClickListener(v -> showAddFriendModal());
 
         friendsListView = view.findViewById(R.id.friends_list_view);

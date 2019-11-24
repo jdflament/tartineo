@@ -4,6 +4,7 @@ public class UserModel {
     private String username;
 
     public UserModel() { }
+
     /**
      * @param username The username of the UserModel. This field must be unique.
      */
