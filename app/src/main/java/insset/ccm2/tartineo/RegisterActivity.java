@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -35,16 +34,13 @@ public class RegisterActivity extends AppCompatActivity {
     private final static String REGISTER_TAG = "REGISTER_ACTIVITY";
 
     // Composants
-    EditText usernameText, emailText, passwordText, passwordConfirmationText;
-    Button registerButton, backButton;
-    ProgressBar progressBar;
+    private EditText usernameText, emailText, passwordText, passwordConfirmationText;
+    private ProgressBar progressBar;
 
     // Services
-    AuthService authService;
-    UserService userService;
-    RelationService relationService;
-
-    RelationModel relation;
+    private AuthService authService;
+    private UserService userService;
+    private RelationService relationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,20 +173,17 @@ public class RegisterActivity extends AppCompatActivity {
      * @param username The unique Username to store.
      */
     private void storeUsername(FirebaseUser firebaseUser, String username) {
-        UserModel newUserModel = new UserModel(username);
+        UserModel newUser = new UserModel(username);
 
         userService
-                .set(firebaseUser.getUid(), newUserModel)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
-                        } else {
-                            Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
+                .set(firebaseUser.getUid(), newUser)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
+                    } else {
+                        Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
 
-                            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -202,20 +195,17 @@ public class RegisterActivity extends AppCompatActivity {
      * @param firebaseUser The Firebase UserModel.
      */
     private void createUserRelations(FirebaseUser firebaseUser) {
-        relation = new RelationModel();
+        RelationModel relation = new RelationModel();
 
         relationService
                 .set(firebaseUser.getUid(), relation)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
-                        } else {
-                            Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), task.getException());
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
+                    } else {
+                        Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), task.getException());
 
-                            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                        }
+                        Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -232,14 +222,12 @@ public class RegisterActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.register_password_text);
         passwordConfirmationText = findViewById(R.id.register_password_confirmation_text);
 
-        registerButton = findViewById(R.id.register_submit_button);
-        backButton = findViewById(R.id.register_back_button);
-
         progressBar = findViewById(R.id.register_progress_bar);
 
         // Services
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
+        relationService = RelationService.getInstance();
     }
 
     /**

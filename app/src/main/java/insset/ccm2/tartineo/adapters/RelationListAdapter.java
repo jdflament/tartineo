@@ -48,11 +48,7 @@ public class RelationListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         final View result;
 
-        if (convertView == null) {
-            result = LayoutInflater.from(parent.getContext()).inflate(R.layout.relation_list_adapter, parent, false);
-        } else {
-            result = convertView;
-        }
+        result = (convertView == null) ? LayoutInflater.from(parent.getContext()).inflate(R.layout.relation_list_adapter, parent, false) : convertView;
 
         // Composants
         Map.Entry<String, UserModel> item = getItem(position);

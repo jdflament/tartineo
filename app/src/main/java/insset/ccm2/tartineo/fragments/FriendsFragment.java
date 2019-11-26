@@ -158,6 +158,8 @@ public class FriendsFragment extends Fragment {
             Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_storage));
 
             getFriendList();
+            friendsUsernameText.setText("");
+            addfriendsDialog.hide();
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_storage), Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(exception -> {
@@ -203,6 +205,11 @@ public class FriendsFragment extends Fragment {
             friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
             HashMap<String, UserModel> friendList = new HashMap<>();
+
+            if (friendListIds.size() == 0) {
+                RelationListAdapter adapter = new RelationListAdapter(friendList, FriendsFragment.this);
+                friendsListView.setAdapter(adapter);
+            }
 
             for (int i = 0; i < friendListIds.size(); i++) {
                 int index = i;
