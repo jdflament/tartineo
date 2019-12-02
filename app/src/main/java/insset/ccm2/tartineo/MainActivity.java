@@ -1,13 +1,12 @@
 package insset.ccm2.tartineo;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -23,11 +22,16 @@ public class MainActivity extends AppCompatActivity {
 
     private final static String MAIN_TAG = "MAIN_ACTIVITY";
 
-    // Composants
-    BottomNavigationView bottomNavigationView;
+    // Fragments
+    private FragmentManager fragmentManager;
+    private Fragment currentFragment;
+    private MapFragment mapFragment = new MapFragment();
+    private FriendsFragment friendsFragment = new FriendsFragment();
+    private EnemiesFragment enemiesFragment = new EnemiesFragment();
+    private ParametersFragment parametersFragment = new ParametersFragment();
 
     // Services
-    AuthService authService;
+    private AuthService authService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
-
-        // Charge le fragment de carte par défaut.
-        getSupportFragmentManager().beginTransaction().replace(R.id.activity_main_frame_layout, new MapFragment()).commit();
     }
 
     /**
@@ -65,32 +66,28 @@ public class MainActivity extends AppCompatActivity {
      * Affiche la page qui correspond à l'élément sélectionné dans le menu.
      */
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
-        new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                Fragment fragment = null;
-
+            menuItem -> {
                 switch (menuItem.getItemId()) {
                     case R.id.action_map :
-                        fragment = new MapFragment();
+                        hideShowFragment(currentFragment, mapFragment);
+                        currentFragment = mapFragment;
                         break;
                     case R.id.action_friends :
-                        fragment = new FriendsFragment();
+                        hideShowFragment(currentFragment, friendsFragment);
+                        currentFragment = friendsFragment;
                         break;
                     case R.id.action_enemies :
-                        fragment = new EnemiesFragment();
+                        hideShowFragment(currentFragment, enemiesFragment);
+                        currentFragment = enemiesFragment;
                         break;
                     case R.id.action_parameters :
-                        fragment = new ParametersFragment();
+                        hideShowFragment(currentFragment, parametersFragment);
+                        currentFragment = parametersFragment;
                         break;
                 }
 
-                getSupportFragmentManager().beginTransaction().replace(R.id.activity_main_frame_layout, fragment).commit();
-
                 return true;
-            }
-        }
-    ;
+            };
 
     /**
      * Initialise les composants de la vue.
@@ -99,8 +96,12 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MAIN_TAG, getStringRes(R.string.info_main_initialization));
 
         // Composants
-        bottomNavigationView = findViewById(R.id.activity_main_bottom_navigation);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.activity_main_bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+
+        fragmentManager = getSupportFragmentManager();
+
+        createFragments();
 
         // Services
         authService = AuthService.getInstance();
@@ -113,5 +114,37 @@ public class MainActivity extends AppCompatActivity {
      */
     private String getStringRes(int id) {
         return getResources().getString(id);
+    }
+
+    /**
+     * Hide a fragment.
+     *
+     * @param fragment The fragment to hide
+     */
+    private void addHideFragment(Fragment fragment) {
+        fragmentManager.beginTransaction().add(R.id.activity_main_frame_layout, fragment).hide(fragment).commit();
+    }
+
+    /**
+     * Hide a fragment and show another one.
+     *
+     * @param hide The fragment to hide
+     * @param show The fragment to show
+     */
+    private void hideShowFragment(Fragment hide, Fragment show) {
+        fragmentManager.beginTransaction().hide(hide).show(show).commit();
+    }
+
+    /**
+     * Create default (and hide) fragment to the view.
+     */
+    private void createFragments() {
+        addHideFragment(friendsFragment);
+        addHideFragment(enemiesFragment);
+        addHideFragment(parametersFragment);
+
+        fragmentManager.beginTransaction().add(R.id.activity_main_frame_layout, mapFragment).commit();
+
+        currentFragment = mapFragment;
     }
 }

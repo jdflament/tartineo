@@ -1,6 +1,5 @@
 package insset.ccm2.tartineo;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,9 +11,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
@@ -82,38 +78,29 @@ public class RegisterActivity extends AppCompatActivity {
         /*
          * Création d'un Utilisateur Firebase.
          */
-        authService.registerWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                progressBar.setVisibility(View.GONE);
+        authService.registerWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
 
-                // Redirection sur l'activité principale et enregistrement en base en cas de succès.
-                if (task.isSuccessful()) {
-                    Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
+            // Ajoute le nom d'utilisateur au nouvel utilisateur enregistré.
+            FirebaseUser firebaseUser = authResult.getUser();
+            storeUsername(firebaseUser, username);
 
-                    // Ajoute le nom d'utilisateur au nouvel utilisateur enregistré.
-                    FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                    storeUsername(firebaseUser, username);
+            // Ajoute une collection "relations" au nouvel utilisateur enregistré.
+            createUserRelations(firebaseUser);
 
-                    // Ajoute une collection "relations" au nouvel utilisateur enregistré.
-                    createUserRelations(firebaseUser);
+            // Envoi l'email de vérification au nouvel utilisateur enregistré.
+            Objects.requireNonNull(firebaseUser).sendEmailVerification();
 
-                    // Envoi l'email de vérification au nouvel utilisateur enregistré.
-                    Objects.requireNonNull(firebaseUser).sendEmailVerification();
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        }).addOnFailureListener(e -> {
+            Log.w(REGISTER_TAG, getStringRes(R.string.error_registration_failed), e);
 
-                    finish();
-                }
-                else {
-                    Log.w(REGISTER_TAG, getStringRes(R.string.error_registration_failed), task.getException());
-
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_registration_failed), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_registration_failed), Toast.LENGTH_SHORT).show();
+        }).addOnCompleteListener(task -> progressBar.setVisibility(View.GONE));
     }
 
     /**
@@ -177,14 +164,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         userService
                 .set(firebaseUser.getUid(), newUser)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
-                    } else {
-                        Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
+                .addOnSuccessListener(aVoid -> {
+                    Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), e);
 
-                        Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -199,14 +185,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         relationService
                 .set(firebaseUser.getUid(), relation)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
-                    } else {
-                        Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), task.getException());
+                .addOnSuccessListener(aVoid -> {
+                    Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), e);
 
-                        Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                 });
     }
 

@@ -1,6 +1,5 @@
 package insset.ccm2.tartineo;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,10 +11,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 
 import insset.ccm2.tartineo.services.AuthService;
 
@@ -68,25 +63,17 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        authService.loginWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                progressBar.setVisibility(View.GONE);
+        authService.loginWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Log.i(LOGIN_TAG, getStringRes(R.string.info_login_successful));
 
-                if (task.isSuccessful()) {
-                    Log.i(LOGIN_TAG, getStringRes(R.string.info_login_successful));
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.info_login_successful), Toast.LENGTH_LONG).show();
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.info_login_successful), Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        }).addOnFailureListener(e -> {
+            Log.w(LOGIN_TAG, getStringRes(R.string.error_login_failed), e);
 
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                }
-                else {
-                    Log.w(LOGIN_TAG, getStringRes(R.string.error_login_failed), task.getException());
-
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_login_failed), Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_login_failed), Toast.LENGTH_LONG).show();
+        }).addOnCompleteListener(task -> progressBar.setVisibility(View.GONE));
     }
 
     /**

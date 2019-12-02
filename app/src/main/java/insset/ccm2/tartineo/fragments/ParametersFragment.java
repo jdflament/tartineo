@@ -11,10 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import insset.ccm2.tartineo.R;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.UserService;
@@ -44,16 +40,7 @@ public class ParametersFragment extends Fragment {
         initialize(view);
 
         // Récupère le nom d'utilisateur de l'utilisateur Firebase actuellement connecté.
-        userService.get(authService.getCurrentUser().getUid()).addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot doc = task.getResult();
-
-                    welcomeUserText.setText("Welcome, " + doc.get("username"));
-                }
-            }
-        });
+        userService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> welcomeUserText.setText("Welcome, " + documentSnapshot.get("username")));
     }
 
     /**
