@@ -37,4 +37,22 @@
     <string name="info_friends_initialization">FriendsFragment initialization.</string>
     <string name="info_parameters_initialization">ParametersFragment initialization.</string>
     <string name="error_user_not_logged_in">User not logged in.</string>
+    <string name="add">Add</string>
+    <string name="add_new_friend">" Add a new friend!"</string>
+    <string name="info_add_friend_button_fired">Add friend button fired.</string>
+    <string name="info_friend_storage">This friend has been added successfully.</string>
+    <string name="error_friend_storage">An error occured  during the friend storage.</string>
+    <string name="info_user_relations_storage">The userModel relations has been saved.</string>
+    <string name="error_user_relations_storage">An error occured during the userModel relations storage.</string>
+    <string name="error_friend_search_failed">" The friend search failed! This username does not exist."</string>
+    <string name="info_friend_search_successful">Friend search successful.</string>
+    <string name="info_user_not_found">User not found.</string>
+    <string name="error_users_already_friend">These users are already friends.</string>
+    <string name="info_get_friend_list">Friend list successfully loaded.</string>
+    <string name="error_add_yourself_as_friend">You cannot add yourself as friend.</string>
+    <string name="error_has_occurred">An error has occurred.</string>
+    <string name="delete">Delete</string>
+    <string name="info_friend_removal">This friend hasThis friend has been removed successfully. been removed</string>
+    <string name="error_friend_removal">An error occured  during the friend removal.</string>
+    <string name="friend_list">"Friends list "</string>
 </resources>

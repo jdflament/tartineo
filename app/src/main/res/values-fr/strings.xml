@@ -38,4 +38,22 @@
     <string name="info_friends_initialization">Initialisation de FriendsFragment.</string>
     <string name="info_parameters_initialization">Initialisation de ParametersFragment.</string>
     <string name="error_user_not_logged_in">Utilisateur non connecté.</string>
+    <string name="add">Ajouter</string>
+    <string name="add_new_friend">Ajouter un nouvel ami !</string>
+    <string name="info_add_friend_button_fired">Bouton ajouter un ami déclenché.</string>
+    <string name="info_friend_storage">Cet ami a été ajouté avec succès.</string>
+    <string name="error_friend_storage">Une erreur est survenue pendant l\'enregistrement de votre ami.</string>
+    <string name="info_user_relations_storage">Les relations de l\'utilisateur ont été enregistrée.</string>
+    <string name="error_user_relations_storage">Une erreur est survenue pendant l\'enregistrement des relations de l\'utilisateur.</string>
+    <string name="error_friend_search_failed">" La recherche d'ami a échoué. Ce nom d'utilisateur n'existe pas."</string>
+    <string name="info_friend_search_successful">" Recherche d'ami réussie."</string>
+    <string name="info_user_not_found">Cet utilisateur n\'a pas été trouvé.</string>
+    <string name="error_users_already_friend">Ces utilisateurs sont déjà amis.</string>
+    <string name="info_get_friend_list">Liste d\'ami chargé avec succès.</string>
+    <string name="error_add_yourself_as_friend">"Vous ne pouvez pas vous ajouter comme ami. "</string>
+    <string name="error_has_occurred">Une erreur est survenue.</string>
+    <string name="delete">Supprimer</string>
+    <string name="info_friend_removal">Cet ami a été supprimé avec succès.</string>
+    <string name="error_friend_removal">Une erreur est survenue pendant la suppression de votre ami.</string>
+    <string name="friend_list">Liste d\'amis</string>
 </resources>

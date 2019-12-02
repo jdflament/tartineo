@@ -4,7 +4,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import insset.ccm2.tartineo.models.User;
+import insset.ccm2.tartineo.models.UserModel;
 
 public class UserService {
 
@@ -23,19 +23,19 @@ public class UserService {
     }
 
     /**
-     * Set a new User in database by document id.
+     * Set a new UserModel in database by document id.
      *
      * @param documentId The document ID.
-     * @param user The User object to add.
+     * @param userModel The UserModel object to add.
      *
      * @return Task
      */
-    public Task<Void> set(String documentId, User user) {
-        return firestoreService.set(collectionPath, documentId, user);
+    public Task<Void> set(String documentId, UserModel userModel) {
+        return firestoreService.set(collectionPath, documentId, userModel);
     }
 
     /**
-     * Get a User by documentId.
+     * Get a UserModel by documentId.
      *
      * @param documentId The document ID.
      *

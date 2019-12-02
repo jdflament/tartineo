@@ -1,6 +1,5 @@
 package insset.ccm2.tartineo;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,22 +7,18 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
-import insset.ccm2.tartineo.models.User;
+import insset.ccm2.tartineo.models.RelationModel;
+import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
 /**
@@ -35,13 +30,13 @@ public class RegisterActivity extends AppCompatActivity {
     private final static String REGISTER_TAG = "REGISTER_ACTIVITY";
 
     // Composants
-    EditText usernameText, emailText, passwordText, passwordConfirmationText;
-    Button registerButton, backButton;
-    ProgressBar progressBar;
+    private EditText usernameText, emailText, passwordText, passwordConfirmationText;
+    private ProgressBar progressBar;
 
     // Services
-    AuthService authService;
-    UserService userService;
+    private AuthService authService;
+    private UserService userService;
+    private RelationService relationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,35 +78,29 @@ public class RegisterActivity extends AppCompatActivity {
         /*
          * Création d'un Utilisateur Firebase.
          */
-        authService.registerWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                progressBar.setVisibility(View.GONE);
+        authService.registerWithEmailAndPassword(email, password).addOnSuccessListener(authResult -> {
+            Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
 
-                // Redirection sur l'activité principale et enregistrement en base en cas de succès.
-                if (task.isSuccessful()) {
-                    Log.i(REGISTER_TAG, getStringRes(R.string.info_registration_successful));
+            // Ajoute le nom d'utilisateur au nouvel utilisateur enregistré.
+            FirebaseUser firebaseUser = authResult.getUser();
+            storeUsername(firebaseUser, username);
 
-                    // Ajoute le nom d'utilisateur au nouvel utilisateur enregistré.
-                    FirebaseUser firebaseUser = Objects.requireNonNull(task.getResult()).getUser();
-                    storeUsername(firebaseUser, username);
+            // Ajoute une collection "relations" au nouvel utilisateur enregistré.
+            createUserRelations(firebaseUser);
 
-                    // Envoi l'email de vérification au nouvel utilisateur enregistré.
-                    Objects.requireNonNull(firebaseUser).sendEmailVerification();
+            // Envoi l'email de vérification au nouvel utilisateur enregistré.
+            Objects.requireNonNull(firebaseUser).sendEmailVerification();
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.info_registration_successful), Toast.LENGTH_SHORT).show();
 
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
 
-                    finish();
-                }
-                else {
-                    Log.w(REGISTER_TAG, getStringRes(R.string.error_registration_failed), task.getException());
+            finish();
+        }).addOnFailureListener(e -> {
+            Log.w(REGISTER_TAG, getStringRes(R.string.error_registration_failed), e);
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_registration_failed), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            Toast.makeText(getApplicationContext(), getStringRes(R.string.error_registration_failed), Toast.LENGTH_SHORT).show();
+        }).addOnCompleteListener(task -> progressBar.setVisibility(View.GONE));
     }
 
     /**
@@ -167,23 +156,42 @@ public class RegisterActivity extends AppCompatActivity {
     /**
      * Enregistre un nom d'utilisateur en base de données.
      *
-     * @param firebaseUser The Firebase User.
+     * @param firebaseUser The Firebase UserModel.
      * @param username The unique Username to store.
      */
     private void storeUsername(FirebaseUser firebaseUser, String username) {
-        User newUser = new User(username);
+        UserModel newUser = new UserModel(username);
 
         userService
                 .set(firebaseUser.getUid(), newUser)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
-                        } else {
-                            Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), task.getException());
-                        }
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), e);
+
+                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    /**
+     * Créer un collection "relations" pour l'utilisateur.
+     * Cette collection comprend une liste d'amis et d'ennemis.
+     *
+     * @param firebaseUser The Firebase UserModel.
+     */
+    private void createUserRelations(FirebaseUser firebaseUser) {
+        RelationModel relation = new RelationModel();
+
+        relationService
+                .set(firebaseUser.getUid(), relation)
+                .addOnSuccessListener(aVoid -> {
+                    Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), e);
+
+                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -199,14 +207,12 @@ public class RegisterActivity extends AppCompatActivity {
         passwordText = findViewById(R.id.register_password_text);
         passwordConfirmationText = findViewById(R.id.register_password_confirmation_text);
 
-        registerButton = findViewById(R.id.register_submit_button);
-        backButton = findViewById(R.id.register_back_button);
-
         progressBar = findViewById(R.id.register_progress_bar);
 
         // Services
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
+        relationService = RelationService.getInstance();
     }
 
     /**

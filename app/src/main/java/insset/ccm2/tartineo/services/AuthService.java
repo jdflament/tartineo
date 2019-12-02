@@ -20,7 +20,7 @@ public class AuthService {
     }
 
     /**
-     * Retrieve the current User.
+     * Retrieve the current UserModel.
      *
      * @return FirebaseUser
      */
@@ -29,10 +29,10 @@ public class AuthService {
     }
 
     /**
-     * Register a new User by email and password.
+     * Register a new UserModel by email and password.
      *
-     * @param email The User email.
-     * @param password The User password.
+     * @param email The UserModel email.
+     * @param password The UserModel password.
      *
      * @return Task with AuthResult response.
      */
@@ -41,10 +41,10 @@ public class AuthService {
     }
 
     /**
-     * Login a User by email and password.
+     * Login a UserModel by email and password.
      *
-     * @param email The User email.
-     * @param password The User password.
+     * @param email The UserModel email.
+     * @param password The UserModel password.
      *
      * @return Task with AuthResult response.
      */
@@ -53,7 +53,7 @@ public class AuthService {
     }
 
     /**
-     * Logout the current User.
+     * Logout the current UserModel.
      */
     public void logout() {
         firebaseAuth.signOut();
