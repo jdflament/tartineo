@@ -52,7 +52,7 @@
     <string name="error_add_yourself_as_friend">You cannot add yourself as friend.</string>
     <string name="error_has_occurred">An error has occurred.</string>
     <string name="delete">Delete</string>
-    <string name="info_friend_removal">This friend hasThis friend has been removed successfully. been removed</string>
+    <string name="info_friend_removal">This friend has been removed successfully.</string>
     <string name="error_friend_removal">An error occured  during the friend removal.</string>
     <string name="friend_list">"Friends list "</string>
     <string name="info_current_location">Current location :</string>
@@ -60,4 +60,5 @@
     <string name="info_location_storage">The location has been saved.</string>
     <string name="error_location_storage">An error occured during the location storage.</string>
     <string name="info_location_updated">Location has been updated.</string>
+    <string name="self_marker_helper">(you)</string>
 </resources>

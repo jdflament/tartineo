@@ -29,17 +29,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.UserService;
 
@@ -72,9 +62,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initialize();
-
         checkLocationPermission();
+
+        initialize();
 
         fetchLastLocation();
 
@@ -86,12 +76,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
 
         //MarkerOptions are used to create a new Marker.You can specify location, title etc with MarkerOptions
-        MarkerOptions marker = new MarkerOptions().position(latLng).title("You are Here");
+        userService.get(authService.getCurrentUser().getUid())
+                .addOnSuccessListener(documentSnapshot -> {
+                    String currentUserMarkerTitle = documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper));
+                    MarkerOptions marker = new MarkerOptions().position(latLng).title(currentUserMarkerTitle);
 
-        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
-        //Adding the created the marker on the map
-        currentUserMarker = googleMap.addMarker(marker);
+                    //Adding the created the marker on the map
+                    currentUserMarker = googleMap.addMarker(marker);
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        fetchLastLocation();
     }
 
     /**
@@ -135,21 +134,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Récupère la dernière localisation de l'utilisateur.
      */
     private void fetchLastLocation() {
-        fusedLocationProviderClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-            @Override
-            public void onComplete(@NonNull Task<Location> task) {
-                if (task.isSuccessful()) {
-                    currentLocation = task.getResult();
+        fusedLocationProviderClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    currentLocation = location;
                     supportMapFragment.getMapAsync(MapFragment.this);
 
                     storeLocation(currentLocation);
-                } else {
-                    Log.w(MAP_TAG, getStringRes(R.string.error_location_not_found), task.getException());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(MAP_TAG, getStringRes(R.string.error_location_not_found), e);
 
                     Toast.makeText(getActivity(), getStringRes(R.string.error_location_not_found),Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                });
     }
 
     /**
@@ -158,35 +154,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @param location A given location.
      */
     private void storeLocation(Location location) {
-        userService.updateLocation(authService.getCurrentUser().getUid(), location).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
+        userService.updateLocation(authService.getCurrentUser().getUid(), location)
+                .addOnSuccessListener(aVoid -> {
                     Log.i(MAP_TAG, getStringRes(R.string.info_location_storage));
-                } else {
-                    Log.w(MAP_TAG, getStringRes(R.string.error_location_storage), task.getException());
-                }
-            }
-        });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(MAP_TAG, getStringRes(R.string.error_location_storage), e);
+                });
     }
 
     /**
      * Demande l'accès à la localisation de l'utilisateur s'il ne l'a pas encore accordé.
      */
     private void checkLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                getContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                getContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
+        if (!hasLocationPermission()) {
+            requestPermissions(new String[]{
                     android.Manifest.permission.ACCESS_FINE_LOCATION
             }, LOCATION_REQUEST_CODE);
-            return;
         }
+    }
+
+    /**
+     * Vérifie si l'application a les permissions de localisation nécessaires.
+     *
+     * @return Boolean
+     */
+    private Boolean hasLocationPermission() {
+        return (ActivityCompat.checkSelfPermission(
+                getContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                getContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        );
     }
 
     /**
@@ -197,6 +198,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Composants
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
+
         supportMapFragment = (SupportMapFragment) MapFragment.this.getChildFragmentManager().findFragmentById(R.id.map);
 
         // Services

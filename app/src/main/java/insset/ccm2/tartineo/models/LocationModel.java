@@ -1,9 +1,9 @@
 package insset.ccm2.tartineo.models;
 
 public class LocationModel {
-    public double latitude;
+    private double latitude;
 
-    public double longitude;
+    private double longitude;
 
     /**
      * @param latitude
@@ -11,6 +11,22 @@ public class LocationModel {
      */
     public LocationModel(double latitude, double longitude) {
         this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 }
