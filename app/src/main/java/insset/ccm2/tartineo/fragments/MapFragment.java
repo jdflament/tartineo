@@ -30,7 +30,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -48,10 +54,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Map
     private SupportMapFragment supportMapFragment;
     private Marker currentUserMarker;
+    private Map<String, Marker> friendListMarkers = new HashMap<>();
+    private Map<String, Marker> enemyListMarkers = new HashMap<>();
 
     // Services
     private AuthService authService;
     private UserService userService;
+    private RelationService relationService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,9 +82,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // Récupère la position de l'utilisateur courant et affiche son marker avec son nom
         LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
 
-        //MarkerOptions are used to create a new Marker.You can specify location, title etc with MarkerOptions
         userService.get(authService.getCurrentUser().getUid())
                 .addOnSuccessListener(documentSnapshot -> {
                     String currentUserMarkerTitle = documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper));
@@ -86,6 +95,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     //Adding the created the marker on the map
                     currentUserMarker = googleMap.addMarker(marker);
                 });
+
+        // Récupère la position des relations de l'utilisateur courant et affiche les markers avec leur nom
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+            Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
+
+            Log.d(MAP_TAG, "Snapshot friend list : " + documentSnapshot.get("friendList").toString());
+
+            ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+
+            Log.d(MAP_TAG, "Friend list ids : " + friendListIds.toString());
+
+            for (int i = 0; i < friendListIds.size(); i++) {
+                int index = i;
+
+                userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
+                    Log.d(MAP_TAG, "Snapshot User : " + userDocumentSnapshot.toString());
+
+                    Log.d(MAP_TAG, "Snapshot location : " + userDocumentSnapshot.get("location").toString());
+
+                    // TODO : Allow casting snapshot location to LocationModel
+                    LocationModel friendLocation = (LocationModel) userDocumentSnapshot.get("location");
+
+                    LatLng friendLatLng = new LatLng(
+                            friendLocation.getLatitude(),
+                            friendLocation.getLongitude()
+                    );
+
+                    String friendMarkerTitle = userDocumentSnapshot.get("username").toString();
+                    MarkerOptions friendMarkerOptions = new MarkerOptions().position(friendLatLng).title(friendMarkerTitle);
+
+                    Marker friendMarker = googleMap.addMarker(friendMarkerOptions);
+
+                    friendListMarkers.put(friendListIds.get(index), friendMarker);
+                });
+            }
+        });
     }
 
     @Override
@@ -204,6 +249,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Services
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
+        relationService = RelationService.getInstance();
     }
 
     /**

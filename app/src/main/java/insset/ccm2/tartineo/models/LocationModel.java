@@ -5,6 +5,8 @@ public class LocationModel {
 
     private double longitude;
 
+    public LocationModel() { }
+
     /**
      * @param latitude
      * @param longitude
