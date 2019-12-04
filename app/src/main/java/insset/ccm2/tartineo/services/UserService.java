@@ -1,9 +1,15 @@
 package insset.ccm2.tartineo.services;
 
+import android.location.Location;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.models.UserModel;
 
 public class UserService {
@@ -26,12 +32,12 @@ public class UserService {
      * Set a new UserModel in database by document id.
      *
      * @param documentId The document ID.
-     * @param userModel The UserModel object to add.
+     * @param user The User object to add.
      *
      * @return Task
      */
-    public Task<Void> set(String documentId, UserModel userModel) {
-        return firestoreService.set(collectionPath, documentId, userModel);
+    public Task<Void> set(String documentId, UserModel user) {
+        return firestoreService.set(collectionPath, documentId, user);
     }
 
     /**
@@ -45,6 +51,22 @@ public class UserService {
         return firestoreService.getDocument(collectionPath, documentId);
     }
 
+    /**
+     * Update a user by his ID.
+     *
+     * @param documentId The document ID to update.
+     * @param location The new location.
+     *
+     * @return Task
+     */
+    public Task<Void> updateLocation(String documentId, Location location) {
+        LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
+
+        Map<String,Object> locationModelMap = new HashMap<>();
+        locationModelMap.put("location", locationModel);
+
+        return firestoreService.update("users", documentId, locationModelMap);
+    }
 
     /**
      * Search a user by username value.
