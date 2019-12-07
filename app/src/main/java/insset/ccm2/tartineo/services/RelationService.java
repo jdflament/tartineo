@@ -85,4 +85,42 @@ public class RelationService {
                 removeUserToFriendList
         );
     }
+
+    /**
+     * Update the enemy list of the given document ID.
+     *
+     * @param documentId The UserModel ID.
+     * @param userId The userId to add in friend list.
+     *
+     * @return Task
+     */
+    public Task<Void> addEnemy(String documentId, String userId) {
+        final Map<String, Object> addUserToEnemyList= new HashMap<>();
+        addUserToEnemyList.put("enemyList", FieldValue.arrayUnion(userId));
+
+        return firestoreService.update(
+                collectionPath,
+                documentId,
+                addUserToEnemyList
+        );
+    }
+
+    /**
+     * Remove the enemy list of the given document ID.
+     *
+     * @param documentId The UserModel ID.
+     * @param userId The userId to add in friend list.
+     *
+     * @return Task
+     */
+    public Task<Void> removeEnemy(String documentId, String userId) {
+        final Map<String, Object> removeUserToEnemyList= new HashMap<>();
+        removeUserToEnemyList.put("enemyList", FieldValue.arrayRemove(userId));
+
+        return firestoreService.update(
+                collectionPath,
+                documentId,
+                removeUserToEnemyList
+        );
+    }
 }

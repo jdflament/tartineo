@@ -67,4 +67,13 @@
     <string name="info_relation_marker_updated">A relation marker has been updated.</string>
     <string name="info_relation_marker_added">A relation marker has been added.</string>
     <string name="error_display_yourself_as_friend_marker">You cannot display yourself as friend marker.</string>
+    <string name="enemies_list">Enemies list</string>
+    <string name="add_enemy">Add an enemy!</string>
+    <string name="info_add_enemy_button_fired">Add enemy button fired.</string>
+    <string name="info_enemy_search_successful">Enemy search successful.</string>
+    <string name="error_add_yourself_as_enemy">You cannot add yourself as enemy.</string>
+    <string name="error_users_already_enemy">These users are already enemies.</string>
+    <string name="error_enemy_search_failed">" The enemy search failed! This username does not exist."</string>
+    <string name="info_enemy_storage">This enemy has been added successfully.</string>
+    <string name="info_enemy_removal">This enemy has been removed successfully.</string>
 </resources>

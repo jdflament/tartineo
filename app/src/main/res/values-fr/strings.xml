@@ -46,7 +46,7 @@
     <string name="info_user_relations_storage">Les relations de l\'utilisateur ont été enregistrée.</string>
     <string name="error_user_relations_storage">Une erreur est survenue pendant l\'enregistrement des relations de l\'utilisateur.</string>
     <string name="error_friend_search_failed">" La recherche d'ami a échoué. Ce nom d'utilisateur n'existe pas."</string>
-    <string name="info_friend_search_successful">" Recherche d'ami réussie."</string>
+    <string name="info_friend_search_successful">Recherche d\'ami réussie.</string>
     <string name="info_user_not_found">Cet utilisateur n\'a pas été trouvé.</string>
     <string name="error_users_already_friend">Ces utilisateurs sont déjà amis.</string>
     <string name="info_get_friend_list">Liste d\'ami chargé avec succès.</string>
@@ -68,4 +68,13 @@
     <string name="info_relation_marker_updated">Le marker d\'une relation a été mise à jour.</string>
     <string name="info_relation_marker_added">Le marker d\'une relation a été ajouté.</string>
     <string name="error_display_yourself_as_friend_marker">Vous ne pouvez pas vous être dans la liste des markers de vos amis.</string>
+    <string name="enemies_list">Liste d\'ennemis</string>
+    <string name="add_enemy">Ajouter un ennemi !</string>
+    <string name="info_add_enemy_button_fired">Bouton ajouter un ennemi déclenché.</string>
+    <string name="info_enemy_search_successful">Recherche d\'ennemi réussie.</string>
+    <string name="error_add_yourself_as_enemy">"Vous ne pouvez pas vous ajouter comme ennemi. "</string>
+    <string name="error_users_already_enemy">Ces utilisateurs sont déjà ennemis.</string>
+    <string name="error_enemy_search_failed">" La recherche d'ennemi a échoué. Ce nom d'utilisateur n'existe pas."</string>
+    <string name="info_enemy_storage">Cet ennemi a été ajouté avec succès.</string>
+    <string name="info_enemy_removal">Cet ennemi a été supprimé avec succès.</string>
 </resources>
