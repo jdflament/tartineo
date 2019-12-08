@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
@@ -100,34 +99,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
             Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
 
-            Log.d(MAP_TAG, "Snapshot friend list : " + documentSnapshot.get("friendList").toString());
-
             ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
-
-            Log.d(MAP_TAG, "Friend list ids : " + friendListIds.toString());
 
             for (int i = 0; i < friendListIds.size(); i++) {
                 int index = i;
 
-                userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
-                    Log.d(MAP_TAG, "Snapshot User : " + userDocumentSnapshot.toString());
+                userService.get(friendListIds.get(index))
+                        .addOnSuccessListener(userDocumentSnapshot -> {
+                            Map<String, Double> location = (Map<String, Double>) userDocumentSnapshot.get("location");
 
-                    Log.d(MAP_TAG, "Snapshot location : " + userDocumentSnapshot.get("location").toString());
+                            LatLng friendLatLng = new LatLng(location.get("latitude"), location.get("longitude"));
 
-                    // TODO : Allow casting snapshot location to LocationModel
-                    LocationModel friendLocation = (LocationModel) userDocumentSnapshot.get("location");
+                            String friendMarkerTitle = userDocumentSnapshot.get("username").toString();
+                            MarkerOptions friendMarkerOptions = new MarkerOptions().position(friendLatLng).title(friendMarkerTitle);
 
-                    LatLng friendLatLng = new LatLng(
-                            friendLocation.getLatitude(),
-                            friendLocation.getLongitude()
-                    );
+                            Marker friendMarker = googleMap.addMarker(friendMarkerOptions);
 
-                    String friendMarkerTitle = userDocumentSnapshot.get("username").toString();
-                    MarkerOptions friendMarkerOptions = new MarkerOptions().position(friendLatLng).title(friendMarkerTitle);
-
-                    Marker friendMarker = googleMap.addMarker(friendMarkerOptions);
-
-                    friendListMarkers.put(friendListIds.get(index), friendMarker);
+                            friendListMarkers.put(friendListIds.get(index), friendMarker);
                 });
             }
         });
