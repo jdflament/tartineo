@@ -51,10 +51,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     // Map
+    private GoogleMap map;
     private SupportMapFragment supportMapFragment;
     private Marker currentUserMarker;
-    private Map<String, Marker> friendListMarkers = new HashMap<>();
-    private Map<String, Marker> enemyListMarkers = new HashMap<>();
+    private Map<String, Marker> relationsMarkers = new HashMap<>();
 
     // Services
     private AuthService authService;
@@ -81,42 +81,81 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // Récupère la position de l'utilisateur courant et affiche son marker avec son nom
+        map = googleMap;
+        setCurrentUserMarker();
+        setCurrentUserRelationsMarkers();
+    }
+
+    /**
+     * Récupère la position de l'utilisateur courant et affiche son marker avec son nom
+     */
+    private void setCurrentUserMarker() {
         LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
 
         userService.get(authService.getCurrentUser().getUid())
                 .addOnSuccessListener(documentSnapshot -> {
-                    String currentUserMarkerTitle = documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper));
-                    MarkerOptions marker = new MarkerOptions().position(latLng).title(currentUserMarkerTitle);
+                    // Déplace la caméra vers la position de l'utilisateur courant
+                    map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
-                    //Adding the created the marker on the map
-                    currentUserMarker = googleMap.addMarker(marker);
+                    // Ajoute le marker de l'utilisateur courant sur la carte
+                    currentUserMarker = map.addMarker(getMarkerOptions(
+                            documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper)),
+                            latLng
+                    ));
                 });
+    }
 
-        // Récupère la position des relations de l'utilisateur courant et affiche les markers avec leur nom
-        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
+    /**
+     * Récupère la position des relations de l'utilisateur courant et affiche les markers avec leur nom
+     */
+    private void setCurrentUserRelationsMarkers() {
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
             Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
 
-            ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+            ArrayList<String> friendListIds = (ArrayList<String>) relationDocumentSnapshot.get("friendList");
 
             for (int i = 0; i < friendListIds.size(); i++) {
                 int index = i;
 
-                userService.get(friendListIds.get(index))
+                String friendId = friendListIds.get(index);
+
+                // TODO : Add Friend/Enemy marker style
+                userService.get(friendId)
                         .addOnSuccessListener(userDocumentSnapshot -> {
-                            Map<String, Double> location = (Map<String, Double>) userDocumentSnapshot.get("location");
 
-                            LatLng friendLatLng = new LatLng(location.get("latitude"), location.get("longitude"));
+                            // Ecoute les évènements sur les relations de l'utilisateur
+                            userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
+                                if (e != null) {
+                                    Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
+                                    return;
+                                }
 
-                            String friendMarkerTitle = userDocumentSnapshot.get("username").toString();
-                            MarkerOptions friendMarkerOptions = new MarkerOptions().position(friendLatLng).title(friendMarkerTitle);
+                                Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
+                                Marker currentFriendMarker = relationsMarkers.get(friendId);
 
-                            Marker friendMarker = googleMap.addMarker(friendMarkerOptions);
+                                if (location.isEmpty() || location.get("latitude") != null || location.get("longitude") != null) {
+                                    if (currentFriendMarker != null) {
+                                        currentFriendMarker.remove();
+                                    }
 
-                            friendListMarkers.put(friendListIds.get(index), friendMarker);
-                });
+                                    return;
+                                }
+
+                                LatLng friendLatLng = new LatLng(location.get("latitude"), location.get("longitude"));
+
+                                if (currentFriendMarker != null) {
+                                    currentFriendMarker.setPosition(friendLatLng);
+                                    return;
+                                }
+
+                                Marker friendMarker = map.addMarker(getMarkerOptions(
+                                        documentSnapshot.get("username").toString(),
+                                        friendLatLng)
+                                );
+
+                                relationsMarkers.put(friendListIds.get(index), friendMarker);
+                            });
+                        });
             }
         });
     }
@@ -221,6 +260,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         );
+    }
+
+    /**
+     * Créer l'objet MarkerOptions, permettant de paramétrer un Marker
+     *
+     * @param title Titre du marqueur
+     * @param latLng Position du marqueur
+     *
+     * @return MarkerOptions
+     */
+    private MarkerOptions getMarkerOptions(String title, LatLng latLng) {
+        return new MarkerOptions().position(latLng).title(title);
     }
 
     /**

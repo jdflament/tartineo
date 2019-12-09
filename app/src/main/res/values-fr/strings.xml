@@ -62,4 +62,5 @@
     <string name="error_location_storage">Une erreur est survenue pendant l\'enregistrement de la localisation.</string>
     <string name="info_location_updated">La localisation a été mise à jour.</string>
     <string name="self_marker_helper">(vous)</string>
+    <string name="error_document_event_listening">"Une erreur s'est produite lors de l'écoute des événements du document. "</string>
 </resources>
