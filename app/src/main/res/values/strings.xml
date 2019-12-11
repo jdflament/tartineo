@@ -62,4 +62,5 @@
     <string name="info_location_updated">Location has been updated.</string>
     <string name="self_marker_helper">(you)</string>
     <string name="error_document_event_listening">An error occured during document\'s events listening.</string>
+    <string name="info_get_enemy_list">Enemy list successfully loaded.</string>
 </resources>

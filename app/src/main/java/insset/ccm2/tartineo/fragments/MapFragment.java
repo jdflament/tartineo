@@ -26,6 +26,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -82,7 +84,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+
         setCurrentUserMarker();
+
         setCurrentUserRelationsMarkers();
     }
 
@@ -101,63 +105,70 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     currentUserMarker = map.addMarker(getMarkerOptions(
                             documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper)),
                             latLng
-                    ));
+                    ).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                 });
+    }
+
+    private void setCurrentUserRelationsMarkers() {
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
+            Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
+            Log.i(MAP_TAG, getStringRes(R.string.info_get_enemy_list));
+
+            ArrayList<String> friendListIds = (ArrayList<String>) relationDocumentSnapshot.get("friendList");
+            ArrayList<String> enemyListIds = (ArrayList<String>) relationDocumentSnapshot.get("enemyList");
+
+            setMarkersByList(friendListIds, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            setMarkersByList(enemyListIds, BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        });
     }
 
     /**
      * Récupère la position des relations de l'utilisateur courant et affiche les markers avec leur nom
      */
-    private void setCurrentUserRelationsMarkers() {
-        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
-            Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
+    private void setMarkersByList(ArrayList<String> relationListIds, BitmapDescriptor markerColor) {
+        for (int i = 0; i < relationListIds.size(); i++) {
+            int index = i;
 
-            ArrayList<String> friendListIds = (ArrayList<String>) relationDocumentSnapshot.get("friendList");
+            String relationId = relationListIds.get(index);
 
-            for (int i = 0; i < friendListIds.size(); i++) {
-                int index = i;
+            userService.get(relationId).addOnSuccessListener(userDocumentSnapshot -> {
 
-                String friendId = friendListIds.get(index);
+                // Ecoute les évènements sur les relations de l'utilisateur
+                userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
+                    if (e != null) {
+                        Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
+                        return;
+                    }
 
-                // TODO : Add Friend/Enemy marker style
-                userService.get(friendId)
-                        .addOnSuccessListener(userDocumentSnapshot -> {
+                    Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
+                    Marker currentRelationMarker = relationsMarkers.get(relationId);
 
-                            // Ecoute les évènements sur les relations de l'utilisateur
-                            userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
-                                if (e != null) {
-                                    Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
-                                    return;
-                                }
+                    if (location.isEmpty() || location.get("latitude") != null || location.get("longitude") != null) {
+                        if (currentRelationMarker != null) {
+                            currentRelationMarker.remove();
+                        }
 
-                                Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
-                                Marker currentFriendMarker = relationsMarkers.get(friendId);
+                        return;
+                    }
 
-                                if (location.isEmpty() || location.get("latitude") != null || location.get("longitude") != null) {
-                                    if (currentFriendMarker != null) {
-                                        currentFriendMarker.remove();
-                                    }
+                    LatLng latLng = new LatLng(location.get("latitude"), location.get("longitude"));
 
-                                    return;
-                                }
+                    if (currentRelationMarker != null) {
+                        currentRelationMarker.setPosition(latLng);
+                        return;
+                    }
 
-                                LatLng friendLatLng = new LatLng(location.get("latitude"), location.get("longitude"));
+                    Marker marker = map.addMarker(
+                            getMarkerOptions(
+                                    documentSnapshot.get("username").toString(),
+                                    latLng
+                            ).icon(markerColor)
+                    );
 
-                                if (currentFriendMarker != null) {
-                                    currentFriendMarker.setPosition(friendLatLng);
-                                    return;
-                                }
-
-                                Marker friendMarker = map.addMarker(getMarkerOptions(
-                                        documentSnapshot.get("username").toString(),
-                                        friendLatLng)
-                                );
-
-                                relationsMarkers.put(friendListIds.get(index), friendMarker);
-                            });
-                        });
-            }
-        });
+                    relationsMarkers.put(relationId, marker);
+                });
+            });
+        }
     }
 
     @Override
@@ -271,7 +282,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * @return MarkerOptions
      */
     private MarkerOptions getMarkerOptions(String title, LatLng latLng) {
-        return new MarkerOptions().position(latLng).title(title);
+        return new MarkerOptions()
+                .position(latLng)
+                .title(title)
+                .flat(true)
+        ;
     }
 
     /**
