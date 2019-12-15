@@ -18,6 +18,13 @@ public class MapService {
     }
 
     /**
+     * Réinitialise la carte.
+     */
+    public void reset() {
+        googleMapService.reset();
+    }
+
+    /**
      * Ajoute un Marker sur la carte depuis l'identifiant d'un utilisateur.
      *
      * @param id Identifiant de l'utilisateur.

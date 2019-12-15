@@ -75,6 +75,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        googleMapService.reset();
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         googleMapService.setMap(googleMap);
 
@@ -102,7 +109,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 String username = documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper));
 
                 // Ajoute le marker de l'utilisateur courant sur la carte
-                currentUserMarker = googleMapService.addMarker(currentUserId, latLng, username);
+                currentUserMarker = googleMapService.addMarker(currentUserId, latLng, username, "red");
             }
         );
     }
@@ -112,11 +119,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
             Log.i(MAP_TAG, getStringRes(R.string.info_get_enemy_list));
 
-            ArrayList<String> friendListIds = (ArrayList<String>) relationDocumentSnapshot.get("friendList");
-            ArrayList<String> enemyListIds = (ArrayList<String>) relationDocumentSnapshot.get("enemyList");
+            setMarkersByList(
+                (ArrayList<String>) relationDocumentSnapshot.get("friendList"),
+                "blue"
+            );
 
-            setMarkersByList(friendListIds, "blue");
-            setMarkersByList(enemyListIds, "orange");
+            setMarkersByList(
+                (ArrayList<String>) relationDocumentSnapshot.get("enemyList"),
+                "orange"
+            );
         });
     }
 
@@ -134,6 +145,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
                     if (e != null) {
                         Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
+
+                        return;
+                    }
+
+                    if (documentSnapshot.getId() == authService.getCurrentUser().getUid()) {
+                        Log.w(MAP_TAG, getStringRes(R.string.error_display_yourself_as_friend_marker));
 
                         return;
                     }
@@ -158,15 +175,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         location.get("longitude")
                     );
 
+                    String username = documentSnapshot.get("username").toString();
+
                     if (currentRelationMarker != null) {
-                        Log.i(MAP_TAG, getStringRes(R.string.info_relation_location_updated));
+                        Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_updated));
 
                         currentRelationMarker.setPosition(latLng);
 
                         return;
                     }
 
-                    String username = documentSnapshot.get("username").toString();
                     googleMapService.addMarker(relationId, latLng, username, markerColor);
                     Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_added));
                 });

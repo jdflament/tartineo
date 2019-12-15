@@ -28,9 +28,23 @@ public class GoogleMapService {
     }
 
     /**
+     * Réinitialise la carte.
+     */
+    public void reset() {
+        for (Map.Entry<String, Marker> markerEntry : markers.entrySet()) {
+            Marker marker = markerEntry.getValue();
+
+            marker.remove();
+        }
+
+        markers.clear();
+        map.resetMinMaxZoomPreference();
+    }
+
+    /**
      * Initialise la carte.
      *
-     * @param googleMap G
+     * @param googleMap Google map
      */
     public void setMap(GoogleMap googleMap) {
         map = googleMap;
@@ -93,6 +107,7 @@ public class GoogleMapService {
      * @param id Identifiant du Marker
      * @param latLng Position du Marker
      * @param title Titre sur le Marker
+     * @param color Couleur du Marker
      *
      * @return Marker
      */
