@@ -63,4 +63,7 @@
     <string name="self_marker_helper">(you)</string>
     <string name="error_document_event_listening">An error occured during document\'s events listening.</string>
     <string name="info_get_enemy_list">Enemy list successfully loaded.</string>
+    <string name="info_relation_marker_removal">A relation marker has been removed.</string>
+    <string name="info_relation_location_updated">A relation location has been updated.</string>
+    <string name="info_relation_marker_added">A relation marker has been added.</string>
 </resources>
