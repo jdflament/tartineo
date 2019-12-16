@@ -19,11 +19,10 @@ import androidx.fragment.app.Fragment;
 
 import insset.ccm2.tartineo.R;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import insset.ccm2.tartineo.adapters.RelationListAdapter;
 import insset.ccm2.tartineo.models.UserModel;
@@ -37,6 +36,7 @@ public class FriendsFragment extends Fragment {
 
     // Composants
     private ArrayList<String> friendListIds;
+    private ArrayList<String> enemyListIds;
     private Dialog addfriendsDialog;
     private EditText friendsUsernameText;
     private ListView friendsListView;
@@ -94,6 +94,7 @@ public class FriendsFragment extends Fragment {
 
                 relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
                     friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+                    enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
 
                     // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
                     if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
@@ -111,6 +112,13 @@ public class FriendsFragment extends Fragment {
                         Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_users_already_friend), Toast.LENGTH_SHORT).show();
 
                         return;
+                    }
+
+                    // Vérifie si l'utilisateur trouvé est dans la liste d'ennemi de l'utilisateur courant
+                    if (enemyListIds.indexOf(userByUsername.getId()) != -1) {
+                        Log.e(FRIENDS_TAG, getStringRes(R.string.error_user_remove_relations));
+
+                        relationService.removeUnFriendRelation(authService.getCurrentUser().getUid(), userByUsername.getId());
                     }
 
                     createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
@@ -151,18 +159,19 @@ public class FriendsFragment extends Fragment {
      * @param targetUserId The target user ID.
      */
     private void createFriendship(String sourceUserId, String targetUserId) {
-        // Ajoute l'utilisateur cible dans la liste d'ami de l'utilisateur source
-        final Task<Void> firstFriendshipTask = relationService.addFriend(sourceUserId, targetUserId);
-
-        // Ajoute l'utilisateur source dans la liste d'ami de l'utilisateur cible
-        final Task<Void> secondFriendshipTask = relationService.addFriend(targetUserId, sourceUserId);
-
-        firstFriendshipTask.continueWithTask(task -> secondFriendshipTask).addOnSuccessListener(aVoid -> {
+        relationService.createFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_storage));
 
-            getFriendList();
             friendsUsernameText.setText("");
             addfriendsDialog.hide();
+
+            // Ajoute un utilisateur et met à jour la listView
+            userService.get(targetUserId).addOnSuccessListener(documentSnapshot -> {
+               relationService.addInFriendList(targetUserId, documentSnapshot.toObject(UserModel.class));
+               relationService.removeFromEnemyList(targetUserId);
+               updateFriendListView(relationService.getFriendList());
+
+            });
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_storage), Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(exception -> {
@@ -179,16 +188,11 @@ public class FriendsFragment extends Fragment {
      * @param targetUserId The target user ID.
      */
     public void removeFriendship(String sourceUserId, String targetUserId) {
-        // Supprime l'utilisateur cible dans la liste d'ami de l'utilisateur source
-        final Task<Void> firstFriendshipTask = relationService.removeFriend(sourceUserId, targetUserId);
-
-        // Supprime l'utilisateur source dans la liste d'ami de l'utilisateur cible
-        final Task<Void> secondFriendshipTask = relationService.removeFriend(targetUserId, sourceUserId);
-
-        firstFriendshipTask.continueWithTask(task -> secondFriendshipTask).addOnSuccessListener(aVoid -> {
+        relationService.removeFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_removal));
 
-            getFriendList();
+            relationService.removeFromFriendList(targetUserId);
+            updateFriendListView(relationService.getFriendList());
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_removal), Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(exception -> {
@@ -199,34 +203,33 @@ public class FriendsFragment extends Fragment {
     }
 
     /**
-     * Récupère la liste d'ami au chargement de la vue.
+     * Récupère la liste d'amis.
      */
     private void getFriendList() {
         relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
-            Log.i(FRIENDS_TAG, getStringRes(R.string.info_get_friend_list));
-
-            friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
-
-            HashMap<String, UserModel> friendList = new HashMap<>();
-
-            if (friendListIds.size() == 0) {
-                RelationListAdapter adapter = new RelationListAdapter(friendList, FriendsFragment.this);
-                friendsListView.setAdapter(adapter);
-            }
+            ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
             for (int i = 0; i < friendListIds.size(); i++) {
                 int index = i;
 
                 userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
-                    friendList.put(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
-
-                    if (friendList.size() == friendListIds.size()) {
-                        RelationListAdapter adapter = new RelationListAdapter(friendList, FriendsFragment.this);
-                        friendsListView.setAdapter(adapter);
-                    }
+                    relationService.addInFriendList(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                    updateFriendListView(relationService.getFriendList());
                 });
             }
+
+            updateFriendListView(relationService.getFriendList());
         });
+    }
+
+    /**
+     * Met à jour la listView.
+     *
+     * @param friendList
+     */
+    public void updateFriendListView(Map<String, UserModel> friendList) {
+        RelationListAdapter adapter = new RelationListAdapter(friendList, FriendsFragment.this);
+        friendsListView.setAdapter(adapter);
     }
 
     /**
@@ -254,7 +257,7 @@ public class FriendsFragment extends Fragment {
     }
 
     /**
-     * Affiche le dialogue addFriends.
+     * Affiche le dialogue d'ajout d'ami.
      */
     private void showAddFriendModal() {
         addfriendsDialog.show();

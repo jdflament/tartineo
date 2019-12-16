@@ -17,11 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import insset.ccm2.tartineo.R;
 import insset.ccm2.tartineo.adapters.RelationListAdapter;
@@ -35,6 +34,7 @@ public class EnemiesFragment extends Fragment {
 
     // Composants
     private ArrayList<String> enemyListIds;
+    private ArrayList<String> friendListIds;
     private Dialog addEnemiesDialog;
     private EditText enemiesUsernameText;
     private ListView enemiesListView;
@@ -91,6 +91,7 @@ public class EnemiesFragment extends Fragment {
 
                 relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
                     enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
+                    friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
                     // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
                     if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
@@ -110,7 +111,14 @@ public class EnemiesFragment extends Fragment {
                         return;
                     }
 
-                    createUnfriendlyRelationship(authService.getCurrentUser().getUid(), userByUsername.getId());
+                    // Vérifie si l'utilisateur trouvé est dans la liste d'ami de l'utilisateur courant
+                    if (friendListIds.indexOf(userByUsername.getId()) != -1) {
+                        Log.e(ENEMIES_TAG, getStringRes(R.string.error_user_remove_relations));
+
+                        relationService.removeFriendRelation(authService.getCurrentUser().getUid(), userByUsername.getId());
+                    }
+
+                    createUnFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
                 });
             }
         }).addOnFailureListener(exception -> {
@@ -146,25 +154,25 @@ public class EnemiesFragment extends Fragment {
      * @param sourceUserId The source user ID.
      * @param targetUserId The target user ID.
      */
-    private void createUnfriendlyRelationship(String sourceUserId, String targetUserId) {
-        // Ajoute l'utilisateur cible dans la liste d'ennemi de l'utilisateur source
-        final Task<Void> unfriendlyRelationshipTask = relationService.addEnemy(sourceUserId, targetUserId);
-
-        // Ajoute l'utilisateur source dans la liste d'ennemi de l'utilisateur cible
-        final Task<Void> secondUnfriendlyRelationshipTask = relationService.addEnemy(targetUserId, sourceUserId);
-
-        unfriendlyRelationshipTask.continueWithTask(task -> secondUnfriendlyRelationshipTask).addOnSuccessListener(aVoid -> {
+    private void createUnFriendship(String sourceUserId, String targetUserId) {
+        relationService.createUnFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(ENEMIES_TAG, getStringRes(R.string.info_enemy_storage));
 
-            getEnemyList();
             enemiesUsernameText.setText("");
             addEnemiesDialog.hide();
 
-            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_enemy_storage), Toast.LENGTH_SHORT).show();
-        }).addOnFailureListener(exception -> {
-            Log.w(ENEMIES_TAG, getStringRes(R.string.info_enemy_storage), exception);
+            // Ajoute un utilisateur et met à jour la listView
+            userService.get(targetUserId).addOnSuccessListener(documentSnapshot -> {
+                relationService.addInEnemyList(targetUserId, documentSnapshot.toObject(UserModel.class));
+                relationService.removeFromFriendList(targetUserId);
+                updateEnemyListView(relationService.getEnemyList());
+            });
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_enemy_storage), Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(exception -> {
+            Log.w(ENEMIES_TAG, getStringRes(R.string.error_enemy_storage), exception);
+
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_enemy_storage), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -174,55 +182,49 @@ public class EnemiesFragment extends Fragment {
      * @param sourceUserId The source user ID.
      * @param targetUserId The target user ID.
      */
-    public void removeUnfriendlyRelationship(String sourceUserId, String targetUserId) {
-        // Supprime l'utilisateur cible dans la liste d'ennemi de l'utilisateur source
-        final Task<Void> unfriendlyRelationshipTask = relationService.removeEnemy(sourceUserId, targetUserId);
-
-        // Supprime l'utilisateur source dans la liste d'ennemi de l'utilisateur cible
-        final Task<Void> secondUnfriendlyRelationshipTask = relationService.removeEnemy(targetUserId, sourceUserId);
-
-        unfriendlyRelationshipTask.continueWithTask(task -> secondUnfriendlyRelationshipTask).addOnSuccessListener(aVoid -> {
+    public void removeUnFriendship(String sourceUserId, String targetUserId) {
+        relationService.removeFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(ENEMIES_TAG, getStringRes(R.string.info_enemy_removal));
 
-            getEnemyList();
+            relationService.removeFromEnemyList(targetUserId);
+            updateEnemyListView(relationService.getEnemyList());
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_enemy_removal), Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(exception -> {
-            Log.w(ENEMIES_TAG, getStringRes(R.string.info_enemy_removal), exception);
+            Log.w(ENEMIES_TAG, getStringRes(R.string.error_enemy_removal), exception);
 
-            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_enemy_removal), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.error_enemy_removal), Toast.LENGTH_SHORT).show();
         });
     }
 
     /**
-     * Récupère la liste d'ennemi au chargement de la vue.
+     * Récupère la liste d'ennemi.
      */
     private void getEnemyList() {
         relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
-            Log.i(ENEMIES_TAG, getStringRes(R.string.info_get_enemy_list));
-
-            enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
-
-            HashMap<String, UserModel> enemyList = new HashMap<>();
-
-            if (enemyListIds.size() == 0) {
-                RelationListAdapter adapter = new RelationListAdapter(enemyList, EnemiesFragment.this);
-                enemiesListView.setAdapter(adapter);
-            }
+            ArrayList<String> enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
 
             for (int i = 0; i < enemyListIds.size(); i++) {
                 int index = i;
 
                 userService.get(enemyListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
-                    enemyList.put(enemyListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
-
-                    if (enemyList.size() == enemyListIds.size()) {
-                        RelationListAdapter adapter = new RelationListAdapter(enemyList, EnemiesFragment.this);
-                        enemiesListView.setAdapter(adapter);
-                    }
+                    relationService.addInEnemyList(enemyListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                    updateEnemyListView(relationService.getEnemyList());
                 });
             }
+
+            updateEnemyListView(relationService.getEnemyList());
         });
+    }
+
+    /**
+     * Met à jour la listView.
+     *
+     * @param enemyList
+     */
+    public void updateEnemyListView(Map<String, UserModel> enemyList) {
+        RelationListAdapter adapter = new RelationListAdapter(enemyList, EnemiesFragment.this);
+        enemiesListView.setAdapter(adapter);
     }
 
     /**
@@ -249,7 +251,7 @@ public class EnemiesFragment extends Fragment {
     }
 
     /**
-     * Affiche le dialogue addEnemies.
+     * Affiche le dialogue d'ajout d'ennemi.
      */
     private void showAddEnemyModal() {
         addEnemiesDialog.show();

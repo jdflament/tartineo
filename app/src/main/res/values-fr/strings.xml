@@ -77,4 +77,7 @@
     <string name="error_enemy_search_failed">" La recherche d'ennemi a échoué. Ce nom d'utilisateur n'existe pas."</string>
     <string name="info_enemy_storage">Cet ennemi a été ajouté avec succès.</string>
     <string name="info_enemy_removal">Cet ennemi a été supprimé avec succès.</string>
+    <string name="error_enemy_removal">Une erreur est survenue pendant la suppression de votre ennemi.</string>
+    <string name="error_enemy_storage">Une erreur est survenue pendant l\'enregistrement de votre ennemi.</string>
+    <string name="error_user_remove_relations">Une erreur est survenue lors de la suppression de la relation entre deux utilisateurs.</string>
 </resources>

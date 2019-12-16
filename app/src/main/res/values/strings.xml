@@ -4,7 +4,6 @@
     <string name="register">Register</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
-    <string name="username">Username</string>
     <string name="password_confirmation">Confirm password</string>
     <string name="error_empty_field">Please fill in the required fields.</string>
     <string name="error_different_passwords">Please specify identical passwords.</string>
@@ -24,7 +23,7 @@
     <string name="info_login_successful">Login successful.</string>
     <string name="error_login_failed">Login failed! Please try again later.</string>
     <string name="info_username_storage">The username has been saved.</string>
-    <string name="error_username_storage">An error occured during the username storage.</string>
+    <string name="error_username_storage">An error occurred while deleting the relationship between two users.</string>
     <string name="logout">Logout</string>
     <string name="info_logout_successful">Logout successful.</string>
     <string name="info_map_initialization">MapFragment initialization.</string>
@@ -76,4 +75,7 @@
     <string name="error_enemy_search_failed">" The enemy search failed! This username does not exist."</string>
     <string name="info_enemy_storage">This enemy has been added successfully.</string>
     <string name="info_enemy_removal">This enemy has been removed successfully.</string>
+    <string name="error_enemy_removal">An error occured  during the enemy removal.</string>
+    <string name="error_enemy_storage">An error occured  during the enemy storage.</string>
+    <string name="error_user_remove_relations">" An error occurred while deleting the relationship between two users."</string>
 </resources>

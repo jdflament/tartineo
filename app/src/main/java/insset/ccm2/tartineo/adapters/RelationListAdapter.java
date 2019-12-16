@@ -1,6 +1,5 @@
 package insset.ccm2.tartineo.adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import insset.ccm2.tartineo.services.MapService;
 
 public class RelationListAdapter extends BaseAdapter {
     private final ArrayList mData;
+
     private FriendsFragment friendsFragment;
     private EnemiesFragment enemiesFragment;
 
@@ -69,7 +69,7 @@ public class RelationListAdapter extends BaseAdapter {
         ((TextView) result.findViewById(android.R.id.text1)).setText(userModel.getUsername());
 
         Button deleteButton = result.findViewById(R.id.relation_list_delete_button);
-        
+
         deleteButton.setOnClickListener(v -> {
             if (friendsFragment != null) {
                 removeFriend(item);
@@ -107,6 +107,8 @@ public class RelationListAdapter extends BaseAdapter {
      * @param item The user ID and username of UserModel.
      */
     private void removeEnemy(Map.Entry<String, UserModel> item) {
-        enemiesFragment.removeUnfriendlyRelationship(authService.getCurrentUser().getUid(), String.valueOf(item.getKey()));
+        String targetUserId = String.valueOf(item.getKey());
+
+        enemiesFragment.removeUnFriendship(authService.getCurrentUser().getUid(), targetUserId);
     }
 }
