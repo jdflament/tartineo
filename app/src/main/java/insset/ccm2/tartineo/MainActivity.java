@@ -15,7 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import insset.ccm2.tartineo.fragments.EnemiesFragment;
 import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.fragments.MapFragment;
-import insset.ccm2.tartineo.fragments.ParametersFragment;
+import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.MapService;
 import insset.ccm2.tartineo.services.RelationService;
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private MapFragment mapFragment = new MapFragment();
     private FriendsFragment friendsFragment = new FriendsFragment();
     private EnemiesFragment enemiesFragment = new EnemiesFragment();
-    private ParametersFragment parametersFragment = new ParametersFragment();
+    private SettingsFragment settingsFragment = new SettingsFragment();
 
     // Services
     private MapService mapService;
@@ -88,9 +88,9 @@ public class MainActivity extends AppCompatActivity {
                         hideShowFragment(currentFragment, enemiesFragment);
                         currentFragment = enemiesFragment;
                         break;
-                    case R.id.action_parameters :
-                        hideShowFragment(currentFragment, parametersFragment);
-                        currentFragment = parametersFragment;
+                    case R.id.action_settings :
+                        hideShowFragment(currentFragment, settingsFragment);
+                        currentFragment = settingsFragment;
                         break;
                 }
 
@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
     private void createFragments() {
         addHideFragment(friendsFragment);
         addHideFragment(enemiesFragment);
-        addHideFragment(parametersFragment);
+        addHideFragment(settingsFragment);
 
         fragmentManager.beginTransaction().add(R.id.activity_main_frame_layout, mapFragment).commit();
 

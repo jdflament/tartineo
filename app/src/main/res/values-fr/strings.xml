@@ -31,12 +31,12 @@
     <string name="info_map_initialization">Initialisation de MapFragment.</string>
     <string name="friends">Amis</string>
     <string name="map">Carte</string>
-    <string name="parameters">Paramètres</string>
+    <string name="settings">Paramètres</string>
     <string name="enemies">Ennemis</string>
     <string name="info_main_initialization">Initialisation de MainActivity.</string>
     <string name="info_enemies_initialization">Initialisation de EnemiesFragment.</string>
     <string name="info_friends_initialization">Initialisation de FriendsFragment.</string>
-    <string name="info_parameters_initialization">Initialisation de ParametersFragment.</string>
+    <string name="info_settings_initialization">Initialisation de SettingsFragment.</string>
     <string name="error_user_not_logged_in">Utilisateur non connecté.</string>
     <string name="add">Ajouter</string>
     <string name="add_new_friend">Ajouter un nouvel ami !</string>
@@ -80,4 +80,8 @@
     <string name="error_enemy_removal">Une erreur est survenue pendant la suppression de votre ennemi.</string>
     <string name="error_enemy_storage">Une erreur est survenue pendant l\'enregistrement de votre ennemi.</string>
     <string name="error_user_remove_relations">Une erreur est survenue lors de la suppression de la relation entre deux utilisateurs.</string>
+    <string name="logged_in">Connecté en tant que <b>%1$s</b>.</string>
+    <string name="radius">Rayon</string>
+    <string name="radius_settings">"Saisissez le rayon d'affichage des relations : "</string>
+    <string name="save_settings">Enregistrer les paramètres</string>
 </resources>

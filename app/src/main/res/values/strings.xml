@@ -4,6 +4,7 @@
     <string name="register">Register</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
+    <string name="username">Username</string>
     <string name="password_confirmation">Confirm password</string>
     <string name="error_empty_field">Please fill in the required fields.</string>
     <string name="error_different_passwords">Please specify identical passwords.</string>
@@ -30,11 +31,11 @@
     <string name="map">Map</string>
     <string name="friends">Friends</string>
     <string name="enemies">Enemies</string>
-    <string name="parameters">Parameters</string>
+    <string name="settings">Settings</string>
     <string name="info_main_initialization">MainActivity initialization.</string>
     <string name="info_enemies_initialization">EnemiesFragment initialization.</string>
     <string name="info_friends_initialization">FriendsFragment initialization.</string>
-    <string name="info_parameters_initialization">ParametersFragment initialization.</string>
+    <string name="info_settings_initialization">SettingsFragment initialization.</string>
     <string name="error_user_not_logged_in">User not logged in.</string>
     <string name="add">Add</string>
     <string name="add_new_friend">" Add a new friend!"</string>
@@ -78,5 +79,8 @@
     <string name="error_enemy_removal">An error occured  during the enemy removal.</string>
     <string name="error_enemy_storage">An error occured  during the enemy storage.</string>
     <string name="error_user_remove_relations">An error occurred while deleting the relationship between two users.</string>
-    <string name="username">Username</string>
+    <string name="logged_in">Logged in as <b>%1$s</b>.</string>
+    <string name="radius">Radius</string>
+    <string name="radius_settings">Enter the relation display radius :</string>
+    <string name="save_settings">Save settings</string>
 </resources>
