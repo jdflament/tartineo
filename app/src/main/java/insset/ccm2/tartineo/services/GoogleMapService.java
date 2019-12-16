@@ -1,9 +1,12 @@
 package insset.ccm2.tartineo.services;
 
+import android.location.Location;
+
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -11,6 +14,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import insset.ccm2.tartineo.models.LocationModel;
 
 public class GoogleMapService {
 
@@ -65,12 +70,14 @@ public class GoogleMapService {
     }
 
     /**
-     * Déplace la caméra vers la position indiquée.
+     * Déplace la caméra vers la position indiquée avec le zoom.
      *
      * @param latLng Position
+     * @param zoom Zoom
      */
-    public void animateCamera(LatLng latLng) {
-        map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+    public void animateCamera(LatLng latLng, float zoom) {
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(zoom).build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     /**
@@ -184,6 +191,30 @@ public class GoogleMapService {
                 marker.remove();
             }
         }
+    }
+
+    /**
+     * Récupère la distance entre deux points en km.
+     *
+     * @param sourceLatitude Latitude initiale
+     * @param sourceLongitude Longitude initiale
+     * @param targetLatitude Latitude cible
+     * @param targetLongitude Longitude cible
+     *
+     * @return La distance en km.
+     */
+    public float getDistance(double sourceLatitude, double sourceLongitude, double targetLatitude, double targetLongitude) {
+        float[] distances = new float[1];
+
+        Location.distanceBetween(
+            sourceLatitude,
+            sourceLongitude,
+            targetLatitude,
+            targetLongitude,
+            distances
+        );
+
+        return distances[0] == 0 ? distances[0] : distances[0]/1000;
     }
 
     /**

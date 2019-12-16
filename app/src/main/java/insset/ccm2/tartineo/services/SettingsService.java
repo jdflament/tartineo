@@ -6,6 +6,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+import insset.ccm2.tartineo.models.SettingsModel;
+
 public class SettingsService {
     private static final String collectionPath = "settings";
 
@@ -20,6 +22,18 @@ public class SettingsService {
     }
 
     /**
+     * Créé un document "settings" pour l'utilisateur.
+     *
+     * @param userId L'identifiant de l'utilisateur
+     * @param settings Les paramètres de l'utilisateur
+     *
+     * @return Task
+     */
+    public Task<Void> set(String userId, SettingsModel settings) {
+        return firestoreService.set(collectionPath, userId, settings);
+    }
+
+    /**
      * Récupère les paramètres d'un utilisateur.
      *
      * @param userId L'identifiant de l'utilisateur
@@ -31,17 +45,18 @@ public class SettingsService {
     }
 
     /**
-     * Modifie le radius d'un utilisateur
+     * Modifie les paramètres d'un utilisateur.
      *
      * @param userId L'identifiant de l'utilisateur
-     * @param radius Le radius
+     * @param settings Les paramètres
      *
      * @return Task
      */
-    public Task<Void> updateRadius(String userId, int radius) {
-        Map<String,Object> radiusMap = new HashMap<>();
-        radiusMap.put("radius", radius);
+    public Task<Void> update(String userId, SettingsModel settings) {
+        Map<String,Object> settingsMap = new HashMap<>();
 
-        return firestoreService.update(collectionPath, userId, radiusMap);
+        settingsMap.put("radius", settings.getRadius());
+
+        return firestoreService.update(collectionPath, userId, settingsMap);
     }
 }

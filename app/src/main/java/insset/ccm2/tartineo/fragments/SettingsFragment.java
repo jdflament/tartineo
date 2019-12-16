@@ -5,16 +5,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentSnapshot;
-
 import insset.ccm2.tartineo.R;
+import insset.ccm2.tartineo.models.SettingsModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.SettingsService;
 import insset.ccm2.tartineo.services.UserService;
@@ -23,8 +25,13 @@ public class SettingsFragment extends Fragment {
 
     private final static String SETTINGS_TAG = "SETTINGS_FRAGMENT";
 
+    public final static Integer USER_DEFAULT_RADIUS = 30;
+    public final static Integer USER_MAX_RADIUS = 2000;
+
     // Composants
     private TextView welcomeUserText;
+    private SeekBar radiusSeekbar;
+    private TextView radiusSeekbarValue;
 
     // Services
     private AuthService authService;
@@ -44,11 +51,84 @@ public class SettingsFragment extends Fragment {
 
         initialize(view);
 
-        // Récupère le nom d'utilisateur de l'utilisateur Firebase actuellement connecté.
-        userService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
-            welcomeUserText.setText(getResources().getString(R.string.logged_in, documentSnapshot.get("username")));
-        });
+        displayCurrentUsername();
+
+        loadUserSettings();
     }
+
+    /**
+     * Récupère le nom d'utilisateur de l'utilisateur Firebase actuellement connecté.
+     */
+    private void displayCurrentUsername() {
+        userService
+            .get(authService.getCurrentUser().getUid())
+            .addOnSuccessListener(documentSnapshot -> {
+                Log.i(SETTINGS_TAG, getStringRes(R.string.info_username_displayed));
+                welcomeUserText.setText(getResources().getString(R.string.logged_in, documentSnapshot.get("username")));
+            })
+        ;
+    }
+
+    /**
+     * Charge les paramètres de l'utilisateur.
+     */
+    private void loadUserSettings() {
+        settingsService
+            .get(authService.getCurrentUser().getUid())
+            .addOnSuccessListener(documentSnapshot -> {
+                Log.d(SETTINGS_TAG, getStringRes(R.string.info_settings_loaded));
+                SettingsModel settings = documentSnapshot.toObject(SettingsModel.class);
+
+                if (settings != null) {
+                    radiusSeekbar.setProgress(settings.getRadius());
+                }
+            })
+            .addOnFailureListener(e -> Log.w(SETTINGS_TAG, getStringRes(R.string.error_settings_loading), e));
+        ;
+    }
+
+    /**
+     * Enregistre les paramètres de l'utilisateur.
+     */
+    private void saveSettings() {
+        SettingsModel settings = new SettingsModel();
+
+        int radius = radiusSeekbar.getProgress();
+
+        settings.setRadius(radius);
+
+        settingsService
+            .update(authService.getCurrentUser().getUid(), settings)
+            .addOnSuccessListener(aVoid -> {
+                Log.i(SETTINGS_TAG, getStringRes(R.string.info_settings_updated));
+                Toast.makeText(getActivity(), getStringRes(R.string.info_settings_updated),Toast.LENGTH_SHORT).show();
+            })
+            .addOnFailureListener(e -> {
+                Log.e(SETTINGS_TAG, getStringRes(R.string.error_settings_storage), e);
+                Toast.makeText(getActivity(), getStringRes(R.string.error_settings_storage),Toast.LENGTH_SHORT).show();
+            })
+        ;
+    }
+
+    /**
+     * Affiche la valeur du radius au changement.
+     */
+    private OnSeekBarChangeListener updateSeekbarValue = new OnSeekBarChangeListener() {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, progress, USER_MAX_RADIUS));
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    };
 
     /**
      * Initialise les composants de la vue.
@@ -56,6 +136,14 @@ public class SettingsFragment extends Fragment {
     private void initialize(View view) {
         // Composants
         welcomeUserText = view.findViewById(R.id.welcome_user_text);
+
+        radiusSeekbar = view.findViewById(R.id.radius_seekbar);
+        radiusSeekbar.setOnSeekBarChangeListener(updateSeekbarValue);
+        radiusSeekbarValue = view.findViewById(R.id.radius_seekbar_value);
+        radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, radiusSeekbar.getProgress(), USER_MAX_RADIUS));
+
+        Button saveSettingsButton = view.findViewById(R.id.save_settings_button);
+        saveSettingsButton.setOnClickListener(v -> saveSettings());
 
         // Services
         authService = AuthService.getInstance();

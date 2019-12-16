@@ -25,21 +25,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginHorizontal="15dp"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/radius_settings"/>
+            android:layout_height="wrap_content"
+            android:text="@string/radius_settings"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
 
-        <EditText
-            android:id="@+id/friends_username_text"
+        <SeekBar
+            android:id="@+id/radius_seekbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
             android:hint="@string/radius"
-            android:inputType="textPersonName" />
+            android:min="5"
+            android:max="2000"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:thumbTint="@color/primary"
+            android:progressTint="@color/primary" />
+
+        <TextView
+            android:id="@+id/radius_seekbar_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
     </LinearLayout>
 
     <RelativeLayout
@@ -54,7 +66,6 @@
             android:text="@string/save_settings"
             android:backgroundTint="@color/primary"
             android:textColor="@color/white"
-            android:onClick="logout"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="50dp"
             />

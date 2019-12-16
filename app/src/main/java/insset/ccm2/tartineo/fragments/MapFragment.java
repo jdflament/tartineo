@@ -31,9 +31,11 @@ import com.google.android.gms.maps.model.Marker;
 import java.util.ArrayList;
 import java.util.Map;
 
+import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.GoogleMapService;
 import insset.ccm2.tartineo.services.RelationService;
+import insset.ccm2.tartineo.services.SettingsService;
 import insset.ccm2.tartineo.services.UserService;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -43,7 +45,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final int LOCATION_REQUEST_CODE = 101;
 
     // Location
-    private Location currentLocation;
+    private LocationModel currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     // Map
@@ -55,6 +57,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private AuthService authService;
     private UserService userService;
     private RelationService relationService;
+    private SettingsService settingsService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -104,7 +107,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         userService.get(currentUserId)
             .addOnSuccessListener(documentSnapshot -> {
                 // Déplace la caméra vers la position de l'utilisateur courant
-                googleMapService.animateCamera(latLng);
+                googleMapService.animateCamera(latLng, 15);
 
                 String username = documentSnapshot.get("username").toString().concat(" " + getStringRes(R.string.self_marker_helper));
 
@@ -139,58 +142,79 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void setMarkersByList(ArrayList<String> relationListIds, String markerColor) {
         googleMapService.checkMarkersIdsExistence(relationListIds);
 
-        for (int i = 0; i < relationListIds.size(); i++) {
-            int index = i;
+        settingsService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(settingsDocumentSnapshot -> {
+            settingsDocumentSnapshot.getReference().addSnapshotListener(((settingsSnapshotListener, e) -> {
+                if (e != null) {
+                    Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
 
-            String relationId = relationListIds.get(index);
+                    return;
+                }
 
-            userService.get(relationId).addOnSuccessListener(userDocumentSnapshot -> {
-                // Ecoute les évènements sur les relations de l'utilisateur
-                userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
-                    if (e != null) {
-                        Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), e);
+                long radius = (Long) settingsDocumentSnapshot.get("radius");
 
-                        return;
-                    }
+                for (int i = 0; i < relationListIds.size(); i++) {
+                    int index = i;
 
-                    if (documentSnapshot.getId() == authService.getCurrentUser().getUid()) {
-                        Log.w(MAP_TAG, getStringRes(R.string.error_display_yourself_as_friend_marker));
+                    String relationId = relationListIds.get(index);
 
-                        return;
-                    }
+                    userService.get(relationId).addOnSuccessListener(userDocumentSnapshot -> {
+                        // Ecoute les évènements sur les relations de l'utilisateur
+                        userDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, exception) -> {
+                            if (exception != null) {
+                                Log.w(MAP_TAG, getStringRes(R.string.error_document_event_listening), exception);
 
-                    Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
-                    Marker currentRelationMarker = googleMapService.getMarker(relationId);
+                                return;
+                            }
 
-                    if (location.isEmpty() || location.get("latitude") == null || location.get("longitude") == null) {
-                        Log.e(MAP_TAG, getStringRes(R.string.error_location_not_found));
+                            if (documentSnapshot.getId() == authService.getCurrentUser().getUid()) {
+                                Log.w(MAP_TAG, getStringRes(R.string.error_display_yourself_as_friend_marker));
 
-                        if (currentRelationMarker != null) {
-                            Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
+                                return;
+                            }
 
-                            currentRelationMarker.remove();
-                        }
+                            Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
+                            Marker currentRelationMarker = googleMapService.getMarker(relationId);
 
-                        return;
-                    }
+                            if (location.isEmpty() || location.get("latitude") == null || location.get("longitude") == null) {
+                                Log.e(MAP_TAG, getStringRes(R.string.error_location_not_found));
 
-                    LatLng latLng = googleMapService.generateLocation(
-                        location.get("latitude"),
-                        location.get("longitude")
-                    );
+                                if (currentRelationMarker != null) {
+                                    Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
 
-                    String username = documentSnapshot.get("username").toString();
+                                    currentRelationMarker.remove();
+                                }
 
-                    if (currentRelationMarker != null) {
-                        Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
-                        currentRelationMarker.remove();
-                    }
+                                return;
+                            }
 
-                    googleMapService.addMarker(relationId, latLng, username, markerColor);
-                    Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_added));
-                });
-            });
-        }
+                            LatLng latLng = googleMapService.generateLocation(
+                                    location.get("latitude"),
+                                    location.get("longitude")
+                            );
+
+                            String username = documentSnapshot.get("username").toString();
+
+                            if (currentRelationMarker != null) {
+                                Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
+                                currentRelationMarker.remove();
+                            }
+
+                            float distance = googleMapService.getDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), latLng.latitude, latLng.longitude);
+
+                            Log.d(MAP_TAG, "DISTANCE : " + distance);
+                            Log.d(MAP_TAG, "RADIUS : " + radius);
+
+                            if (distance > radius) {
+                                return;
+                            }
+
+                            googleMapService.addMarker(relationId, latLng, username, markerColor);
+                            Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_added));
+                        });
+                    });
+                }
+            }));
+        });
     }
 
     @Override
@@ -223,10 +247,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             )
                         );
 
-                        storeCurrentUserLocation(location);
-                        currentLocation = location;
+                        LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
+                        storeCurrentUserLocation(locationModel);
+                        currentLocation = locationModel;
 
                         Log.d(MAP_TAG, getStringRes(R.string.info_location_updated));
+
+                        setCurrentUserRelationsMarkers();
                     }
                 }
             };
@@ -241,7 +268,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void fetchLastLocation() {
         fusedLocationProviderClient.getLastLocation()
             .addOnSuccessListener(location -> {
-                currentLocation = location;
+                LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
+                currentLocation = locationModel;
                 supportMapFragment.getMapAsync(MapFragment.this);
 
                 storeCurrentUserLocation(currentLocation);
@@ -259,7 +287,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      *
      * @param location A given location.
      */
-    private void storeCurrentUserLocation(Location location) {
+    private void storeCurrentUserLocation(LocationModel location) {
         userService.updateLocation(authService.getCurrentUser().getUid(), location)
             .addOnSuccessListener(aVoid -> {
                 Log.i(MAP_TAG, getStringRes(R.string.info_location_storage));
@@ -312,6 +340,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
+        settingsService = SettingsService.getInstance();
     }
 
     /**

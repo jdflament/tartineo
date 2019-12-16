@@ -84,4 +84,12 @@
     <string name="radius">Rayon</string>
     <string name="radius_settings">"Saisissez le rayon d'affichage des relations : "</string>
     <string name="save_settings">Enregistrer les paramètres</string>
+    <string name="info_settings_updated">Vos paramètres ont été mis à jour.</string>
+    <string name="error_settings_loading">Une erreur est survenue pendant le chargement des paramètres.</string>
+    <string name="info_settings_loaded">Les paramètres de l\'utilisateur courant ont été chargés.</string>
+    <string name="error_settings_storage">Une erreur est survenue pendant l\'enregistrement des paramètres.</string>
+    <string name="info_user_settings_storage">Les paramètres de l\'utilisateur ont été enregistrés.</string>
+    <string name="error_user_settings_storage">Une erreur est survenue pendant l\'enregistrement des paramètres de l\'utilisateur.</string>
+    <string name="radius_value">%1$d/%2$d</string>
+    <string name="info_username_displayed">Nom d\'utilisateur courant affiché.</string>
 </resources>

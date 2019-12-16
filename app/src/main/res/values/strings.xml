@@ -41,9 +41,9 @@
     <string name="add_new_friend">" Add a new friend!"</string>
     <string name="info_add_friend_button_fired">Add friend button fired.</string>
     <string name="info_friend_storage">This friend has been added successfully.</string>
-    <string name="error_friend_storage">An error occured  during the friend storage.</string>
-    <string name="info_user_relations_storage">The userModel relations has been saved.</string>
-    <string name="error_user_relations_storage">An error occured during the userModel relations storage.</string>
+    <string name="error_friend_storage">An error occurred  during the friend storage.</string>
+    <string name="info_user_relations_storage">The user relations has been saved.</string>
+    <string name="error_user_relations_storage">An error occurred during the user relations storage.</string>
     <string name="error_friend_search_failed">" The friend search failed! This username does not exist."</string>
     <string name="info_friend_search_successful">Friend search successful.</string>
     <string name="info_user_not_found">User not found.</string>
@@ -53,15 +53,15 @@
     <string name="error_has_occurred">An error has occurred.</string>
     <string name="delete">Delete</string>
     <string name="info_friend_removal">This friend has been removed successfully.</string>
-    <string name="error_friend_removal">An error occured  during the friend removal.</string>
+    <string name="error_friend_removal">An error occurred  during the friend removal.</string>
     <string name="friend_list">"Friends list "</string>
     <string name="info_current_location">Current location :</string>
     <string name="error_location_not_found">Location not found.</string>
     <string name="info_location_storage">The location has been saved.</string>
-    <string name="error_location_storage">An error occured during the location storage.</string>
+    <string name="error_location_storage">An error occurred during the location storage.</string>
     <string name="info_location_updated">Location has been updated.</string>
     <string name="self_marker_helper">(you)</string>
-    <string name="error_document_event_listening">An error occured during document\'s events listening.</string>
+    <string name="error_document_event_listening">An error occurred during document\'s events listening.</string>
     <string name="info_get_enemy_list">Enemy list successfully loaded.</string>
     <string name="info_relation_marker_removal">A relation marker has been removed.</string>
     <string name="info_relation_marker_updated">A relation marker has been updated.</string>
@@ -83,4 +83,12 @@
     <string name="radius">Radius</string>
     <string name="radius_settings">Enter the relation display radius :</string>
     <string name="save_settings">Save settings</string>
+    <string name="info_settings_updated">Settings successfully updated.</string>
+    <string name="error_settings_loading">An error occurred during the settings loading.</string>
+    <string name="info_settings_loaded">Current user settings successfully loaded.</string>
+    <string name="error_settings_storage">An error occurred during the settings storage.</string>
+    <string name="info_user_settings_storage">The user settings has been saved.</string>
+    <string name="error_user_settings_storage">An error occurred during the user settings storage.</string>
+    <string name="radius_value">%1$d/%2$d</string>
+    <string name="info_username_displayed">Current username displayed.</string>
 </resources>

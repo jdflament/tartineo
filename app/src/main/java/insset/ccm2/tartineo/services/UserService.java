@@ -59,11 +59,9 @@ public class UserService {
      *
      * @return Task
      */
-    public Task<Void> updateLocation(String documentId, Location location) {
-        LocationModel locationModel = new LocationModel(location.getLatitude(), location.getLongitude());
-
+    public Task<Void> updateLocation(String documentId, LocationModel location) {
         Map<String,Object> locationModelMap = new HashMap<>();
-        locationModelMap.put("location", locationModel);
+        locationModelMap.put("location", location);
 
         return firestoreService.update("users", documentId, locationModelMap);
     }
