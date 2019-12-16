@@ -14,12 +14,14 @@ import insset.ccm2.tartineo.R;
 import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.MapService;
 
 public class RelationListAdapter extends BaseAdapter {
     private final ArrayList mData;
     private final FriendsFragment friendsFragment;
 
     // Services
+    private MapService mapService;
     private AuthService authService;
 
     public RelationListAdapter(Map<String, UserModel> map, FriendsFragment friendsFragment) {
@@ -64,6 +66,7 @@ public class RelationListAdapter extends BaseAdapter {
 
         // Services
         authService = AuthService.getInstance();
+        mapService = MapService.getInstance();
 
         return result;
     }
@@ -75,6 +78,9 @@ public class RelationListAdapter extends BaseAdapter {
      * @param item The user ID and username of UserModel.
      */
     private void removeFriend(Map.Entry<String, UserModel> item) {
-        friendsFragment.removeFriendship(authService.getCurrentUser().getUid(), String.valueOf(item.getKey()));
+        String targetUserId = String.valueOf(item.getKey());
+
+        friendsFragment.removeFriendship(authService.getCurrentUser().getUid(), targetUserId);
+        mapService.removeMarker(targetUserId);
     }
 }

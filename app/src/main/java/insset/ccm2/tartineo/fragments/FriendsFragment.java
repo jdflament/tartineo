@@ -28,6 +28,7 @@ import java.util.HashMap;
 import insset.ccm2.tartineo.adapters.RelationListAdapter;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.MapService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
@@ -44,6 +45,7 @@ public class FriendsFragment extends Fragment {
     private AuthService authService;
     private UserService userService;
     private RelationService relationService;
+    private MapService mapService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -112,6 +114,7 @@ public class FriendsFragment extends Fragment {
                     }
 
                     createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
+                    mapService.addMarkerFromUserId(userByUsername.getId(), "blue");
                 });
             }
         }).addOnFailureListener(exception -> {
@@ -247,6 +250,7 @@ public class FriendsFragment extends Fragment {
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
+        mapService = MapService.getInstance();
     }
 
     /**

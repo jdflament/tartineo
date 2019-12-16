@@ -17,6 +17,7 @@ import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.fragments.MapFragment;
 import insset.ccm2.tartineo.fragments.ParametersFragment;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.MapService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ParametersFragment parametersFragment = new ParametersFragment();
 
     // Services
+    private MapService mapService;
     private AuthService authService;
 
     @Override
@@ -56,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     public void logout(View view) {
         // Déconnecte l'utilisateur courant.
         authService.logout();
+
+        // Réinitialise la carte
+        mapService.reset();
 
         // Redirige vers l'activité de connexion.
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -105,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Services
         authService = AuthService.getInstance();
+        mapService = MapService.getInstance();
     }
 
     /**
