@@ -36,7 +36,6 @@ public class FriendsFragment extends Fragment {
 
     // Composants
     private ArrayList<String> friendListIds;
-    private ArrayList<String> enemyListIds;
     private Dialog addfriendsDialog;
     private EditText friendsUsernameText;
     private ListView friendsListView;
@@ -94,7 +93,7 @@ public class FriendsFragment extends Fragment {
 
                 relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
                     friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
-                    enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
+                    ArrayList<String> enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
 
                     // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
                     if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
@@ -118,7 +117,7 @@ public class FriendsFragment extends Fragment {
                     if (enemyListIds.indexOf(userByUsername.getId()) != -1) {
                         Log.e(FRIENDS_TAG, getStringRes(R.string.error_user_remove_relations));
 
-                        relationService.removeUnFriendRelation(authService.getCurrentUser().getUid(), userByUsername.getId());
+                        relationService.removeUnfriendRelation(authService.getCurrentUser().getUid(), userByUsername.getId());
                     }
 
                     createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());

@@ -236,14 +236,14 @@ public class RelationService {
      *
      * @return Tasks
      */
-    public Task<Void> createUnFriendRelation(String sourceUserId, String targetUserId) {
+    public Task<Void> createUnfriendRelation(String sourceUserId, String targetUserId) {
         // Ajoute l'utilisateur cible dans la liste d'ami de l'utilisateur source
-        final Task<Void> firstUnFriendshipTask = storeEnemy(sourceUserId, targetUserId);
+        final Task<Void> firstUnfriendshipTask = storeEnemy(sourceUserId, targetUserId);
 
         // Ajoute l'utilisateur source dans la liste d'ami de l'utilisateur cible
-        final Task<Void> secondUnFriendshipTask = storeEnemy(targetUserId, sourceUserId);
+        final Task<Void> secondUnfriendshipTask = storeEnemy(targetUserId, sourceUserId);
 
-        return firstUnFriendshipTask.continueWithTask(task -> secondUnFriendshipTask);
+        return firstUnfriendshipTask.continueWithTask(task -> secondUnfriendshipTask);
     }
 
     /**
@@ -252,13 +252,13 @@ public class RelationService {
      * @param sourceUserId The source user ID.
      * @param targetUserId The target user ID.
      */
-    public Task<Void> removeUnFriendRelation(String sourceUserId, String targetUserId) {
+    public Task<Void> removeUnfriendRelation(String sourceUserId, String targetUserId) {
         // Supprime l'utilisateur cible dans la liste d'ami de l'utilisateur source
-        final Task<Void> firstUnFriendshipTask = removeEnemy(sourceUserId, targetUserId);
+        final Task<Void> firstUnfriendshipTask = removeEnemy(sourceUserId, targetUserId);
 
         // Supprime l'utilisateur source dans la liste d'ami de l'utilisateur cible
-        final Task<Void> secondUnFriendshipTask = removeEnemy(targetUserId, sourceUserId);
+        final Task<Void> secondUnfriendshipTask = removeEnemy(targetUserId, sourceUserId);
 
-        return firstUnFriendshipTask.continueWithTask(task -> secondUnFriendshipTask);
+        return firstUnfriendshipTask.continueWithTask(task -> secondUnfriendshipTask);
     }
 }

@@ -109,6 +109,7 @@ public class RelationListAdapter extends BaseAdapter {
     private void removeEnemy(Map.Entry<String, UserModel> item) {
         String targetUserId = String.valueOf(item.getKey());
 
-        enemiesFragment.removeUnFriendship(authService.getCurrentUser().getUid(), targetUserId);
+        enemiesFragment.removeUnfriendship(authService.getCurrentUser().getUid(), targetUserId);
+        mapService.removeMarker(targetUserId);
     }
 }

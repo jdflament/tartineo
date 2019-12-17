@@ -34,7 +34,6 @@ public class EnemiesFragment extends Fragment {
 
     // Composants
     private ArrayList<String> enemyListIds;
-    private ArrayList<String> friendListIds;
     private Dialog addEnemiesDialog;
     private EditText enemiesUsernameText;
     private ListView enemiesListView;
@@ -91,7 +90,7 @@ public class EnemiesFragment extends Fragment {
 
                 relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
                     enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
-                    friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+                    ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
                     // Vérifie si l'utilisateur trouvé n'est pas l'utilisateur courant
                     if (userByUsername.getId().equals(authService.getCurrentUser().getUid())) {
@@ -118,7 +117,7 @@ public class EnemiesFragment extends Fragment {
                         relationService.removeFriendRelation(authService.getCurrentUser().getUid(), userByUsername.getId());
                     }
 
-                    createUnFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
+                    createUnfriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
                 });
             }
         }).addOnFailureListener(exception -> {
@@ -154,8 +153,8 @@ public class EnemiesFragment extends Fragment {
      * @param sourceUserId The source user ID.
      * @param targetUserId The target user ID.
      */
-    private void createUnFriendship(String sourceUserId, String targetUserId) {
-        relationService.createUnFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
+    private void createUnfriendship(String sourceUserId, String targetUserId) {
+        relationService.createUnfriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(ENEMIES_TAG, getStringRes(R.string.info_enemy_storage));
 
             enemiesUsernameText.setText("");
@@ -182,8 +181,8 @@ public class EnemiesFragment extends Fragment {
      * @param sourceUserId The source user ID.
      * @param targetUserId The target user ID.
      */
-    public void removeUnFriendship(String sourceUserId, String targetUserId) {
-        relationService.removeFriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
+    public void removeUnfriendship(String sourceUserId, String targetUserId) {
+        relationService.removeUnfriendRelation(sourceUserId, targetUserId).addOnSuccessListener(aVoid -> {
             Log.i(ENEMIES_TAG, getStringRes(R.string.info_enemy_removal));
 
             relationService.removeFromEnemyList(targetUserId);
