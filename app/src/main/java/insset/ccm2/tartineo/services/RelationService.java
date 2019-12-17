@@ -4,6 +4,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,6 +114,20 @@ public class RelationService {
      */
     public void removeFromFriendList(String targetUserId) {
         friendList.remove(targetUserId);
+    }
+
+    /**
+     * Vide la liste d'ami.
+     */
+    public void clearFriendList() {
+        friendList.clear();
+    }
+
+    /**
+     * Vide la liste d'ennemi.
+     */
+    public void clearEnemyList() {
+        enemyList.clear();
     }
 
     /**

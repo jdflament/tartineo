@@ -205,19 +205,25 @@ public class FriendsFragment extends Fragment {
      * Récupère la liste d'amis.
      */
     private void getFriendList() {
-        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
-            ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
+            relationDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
+                ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
-            for (int i = 0; i < friendListIds.size(); i++) {
-                int index = i;
+                relationService.clearFriendList();
 
-                userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
-                    relationService.addInFriendList(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                if (friendListIds.isEmpty()) {
                     updateFriendListView(relationService.getFriendList());
-                });
-            }
+                }
 
-            updateFriendListView(relationService.getFriendList());
+                for (int i = 0; i < friendListIds.size(); i++) {
+                    int index = i;
+
+                    userService.get(friendListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
+                        relationService.addInFriendList(friendListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                        updateFriendListView(relationService.getFriendList());
+                    });
+                }
+            });
         });
     }
 

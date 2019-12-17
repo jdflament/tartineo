@@ -200,19 +200,25 @@ public class EnemiesFragment extends Fragment {
      * Récupère la liste d'ennemi.
      */
     private void getEnemyList() {
-        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(documentSnapshot -> {
-            ArrayList<String> enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
+        relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
+            relationDocumentSnapshot.getReference().addSnapshotListener(((documentSnapshot, e) -> {
+                ArrayList<String> enemyListIds = (ArrayList<String>) documentSnapshot.get("enemyList");
 
-            for (int i = 0; i < enemyListIds.size(); i++) {
-                int index = i;
+                relationService.clearEnemyList();
 
-                userService.get(enemyListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
-                    relationService.addInEnemyList(enemyListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                if (enemyListIds.isEmpty()) {
                     updateEnemyListView(relationService.getEnemyList());
-                });
-            }
+                }
 
-            updateEnemyListView(relationService.getEnemyList());
+                for (int i = 0; i < enemyListIds.size(); i++) {
+                    int index = i;
+
+                    userService.get(enemyListIds.get(index)).addOnSuccessListener(userDocumentSnapshot -> {
+                        relationService.addInEnemyList(enemyListIds.get(index), userDocumentSnapshot.toObject(UserModel.class));
+                        updateEnemyListView(relationService.getEnemyList());
+                    });
+                }
+            }));
         });
     }
 
