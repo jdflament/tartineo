@@ -116,18 +116,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void setCurrentUserRelationsMarkers() {
         relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
-            Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
-            Log.i(MAP_TAG, getStringRes(R.string.info_get_enemy_list));
+            relationDocumentSnapshot.getReference().addSnapshotListener(((documentSnapshot, e) -> {
+                Log.i(MAP_TAG, getStringRes(R.string.info_get_friend_list));
+                Log.i(MAP_TAG, getStringRes(R.string.info_get_enemy_list));
 
-            setMarkersByList(
-                (ArrayList<String>) relationDocumentSnapshot.get("friendList"),
-                "blue"
-            );
+                setMarkersByList(
+                        (ArrayList<String>) documentSnapshot.get("friendList"),
+                        "blue"
+                );
 
-            setMarkersByList(
-                (ArrayList<String>) relationDocumentSnapshot.get("enemyList"),
-                "orange"
-            );
+                setMarkersByList(
+                        (ArrayList<String>) documentSnapshot.get("enemyList"),
+                        "orange"
+                );
+            }));
         });
     }
 
@@ -135,6 +137,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * Récupère la position des relations de l'utilisateur courant et affiche les markers avec leur nom
      */
     private void setMarkersByList(ArrayList<String> relationListIds, String markerColor) {
+        googleMapService.checkMarkersIdsExistence(relationListIds);
+
         for (int i = 0; i < relationListIds.size(); i++) {
             int index = i;
 
@@ -178,11 +182,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     String username = documentSnapshot.get("username").toString();
 
                     if (currentRelationMarker != null) {
-                        Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_updated));
-
-                        currentRelationMarker.setPosition(latLng);
-
-                        return;
+                        Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
+                        currentRelationMarker.remove();
                     }
 
                     googleMapService.addMarker(relationId, latLng, username, markerColor);

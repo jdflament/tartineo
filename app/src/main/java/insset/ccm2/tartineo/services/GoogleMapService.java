@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,9 +20,13 @@ public class GoogleMapService {
 
     private static final GoogleMapService instance = new GoogleMapService();
 
+    private AuthService authService;
+
     private Map<String, Marker> markers = new HashMap<>();
 
-    private GoogleMapService() {}
+    private GoogleMapService() {
+        authService = AuthService.getInstance();
+    }
 
     public static GoogleMapService getInstance() {
         return instance;
@@ -161,6 +166,24 @@ public class GoogleMapService {
             .setInterval(UPDATE_INTERVAL)
             .setFastestInterval(FASTEST_INTERVAL)
         ;
+    }
+
+    /**
+     * Vérifie si les identifiants Markers sont présent dans la liste indiquée.
+     *
+     * S'ils ne le sont pas, une suppression est effectuée.
+     *
+     * @param ids La liste des identifiants.
+     */
+    public void checkMarkersIdsExistence(ArrayList<String> ids) {
+        for (Map.Entry<String, Marker> markerEntry : markers.entrySet()) {
+            String key = markerEntry.getKey();
+            Marker marker = markerEntry.getValue();
+
+            if (!ids.contains(key) && key != authService.getCurrentUser().getUid()) {
+                marker.remove();
+            }
+        }
     }
 
     /**
