@@ -18,6 +18,7 @@ import insset.ccm2.tartineo.fragments.MapFragment;
 import insset.ccm2.tartineo.fragments.ParametersFragment;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.RelationService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,10 +79,12 @@ public class MainActivity extends AppCompatActivity {
                         currentFragment = mapFragment;
                         break;
                     case R.id.action_friends :
+                        friendsFragment.updateFriendListView(RelationService.getInstance().getFriendList());
                         hideShowFragment(currentFragment, friendsFragment);
                         currentFragment = friendsFragment;
                         break;
                     case R.id.action_enemies :
+                        enemiesFragment.updateEnemyListView(RelationService.getInstance().getEnemyList());
                         hideShowFragment(currentFragment, enemiesFragment);
                         currentFragment = enemiesFragment;
                         break;

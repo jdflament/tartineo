@@ -4,7 +4,6 @@
     <string name="register">Register</string>
     <string name="email_address">Email address</string>
     <string name="password">Password</string>
-    <string name="username">Username</string>
     <string name="password_confirmation">Confirm password</string>
     <string name="error_empty_field">Please fill in the required fields.</string>
     <string name="error_different_passwords">Please specify identical passwords.</string>
@@ -24,7 +23,7 @@
     <string name="info_login_successful">Login successful.</string>
     <string name="error_login_failed">Login failed! Please try again later.</string>
     <string name="info_username_storage">The username has been saved.</string>
-    <string name="error_username_storage">An error occured during the username storage.</string>
+    <string name="error_username_storage">An error occurred during the username storage.</string>
     <string name="logout">Logout</string>
     <string name="info_logout_successful">Logout successful.</string>
     <string name="info_map_initialization">MapFragment initialization.</string>
@@ -67,4 +66,17 @@
     <string name="info_relation_marker_updated">A relation marker has been updated.</string>
     <string name="info_relation_marker_added">A relation marker has been added.</string>
     <string name="error_display_yourself_as_friend_marker">You cannot display yourself as friend marker.</string>
+    <string name="enemies_list">Enemies list</string>
+    <string name="add_enemy">Add an enemy!</string>
+    <string name="info_add_enemy_button_fired">Add enemy button fired.</string>
+    <string name="info_enemy_search_successful">Enemy search successful.</string>
+    <string name="error_add_yourself_as_enemy">You cannot add yourself as enemy.</string>
+    <string name="error_users_already_enemy">These users are already enemies.</string>
+    <string name="error_enemy_search_failed">The enemy search failed! This username does not exist.</string>
+    <string name="info_enemy_storage">This enemy has been added successfully.</string>
+    <string name="info_enemy_removal">This enemy has been removed successfully.</string>
+    <string name="error_enemy_removal">An error occured  during the enemy removal.</string>
+    <string name="error_enemy_storage">An error occured  during the enemy storage.</string>
+    <string name="error_user_remove_relations">An error occurred while deleting the relationship between two users.</string>
+    <string name="username">Username</string>
 </resources>
