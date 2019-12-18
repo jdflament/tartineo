@@ -92,4 +92,6 @@
     <string name="error_user_settings_storage">Une erreur est survenue pendant l\'enregistrement des paramètres de l\'utilisateur.</string>
     <string name="radius_value">%1$d/%2$d</string>
     <string name="info_username_displayed">Nom d\'utilisateur courant affiché.</string>
+    <string name="channel_name">Tartineo Canal de Notification</string>
+    <string name="channel_description">Le canal de notification de l\'application Tartineo.</string>
 </resources>
