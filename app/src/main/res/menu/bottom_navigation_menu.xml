@@ -16,7 +16,7 @@
         android:title="@string/enemies" />
 
     <item
-        android:id="@+id/action_parameters"
+        android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_black_24dp"
-        android:title="@string/parameters" />
+        android:title="@string/settings" />
 </menu>

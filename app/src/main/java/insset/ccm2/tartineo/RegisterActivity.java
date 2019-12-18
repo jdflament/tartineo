@@ -15,10 +15,13 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
+import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.models.RelationModel;
+import insset.ccm2.tartineo.models.SettingsModel;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.RelationService;
+import insset.ccm2.tartineo.services.SettingsService;
 import insset.ccm2.tartineo.services.UserService;
 
 /**
@@ -37,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
     private AuthService authService;
     private UserService userService;
     private RelationService relationService;
+    private SettingsService settingsService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +91,9 @@ public class RegisterActivity extends AppCompatActivity {
 
             // Ajoute une collection "relations" au nouvel utilisateur enregistré.
             createUserRelations(firebaseUser);
+
+            // Ajoute une collection "settings" au nouvel utilisateur enregistré.
+            createUserSettings(firebaseUser);
 
             // Envoi l'email de vérification au nouvel utilisateur enregistré.
             Objects.requireNonNull(firebaseUser).sendEmailVerification();
@@ -163,15 +170,16 @@ public class RegisterActivity extends AppCompatActivity {
         UserModel newUser = new UserModel(username);
 
         userService
-                .set(firebaseUser.getUid(), newUser)
-                .addOnSuccessListener(aVoid -> {
-                    Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), e);
+            .set(firebaseUser.getUid(), newUser)
+            .addOnSuccessListener(aVoid -> {
+                Log.i(REGISTER_TAG, getStringRes(R.string.info_username_storage));
+            })
+            .addOnFailureListener(e -> {
+                Log.w(REGISTER_TAG, getStringRes(R.string.error_username_storage), e);
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                });
+                Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
+            })
+        ;
     }
 
     /**
@@ -184,15 +192,40 @@ public class RegisterActivity extends AppCompatActivity {
         RelationModel relation = new RelationModel();
 
         relationService
-                .set(firebaseUser.getUid(), relation)
-                .addOnSuccessListener(aVoid -> {
-                    Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), e);
+            .set(firebaseUser.getUid(), relation)
+            .addOnSuccessListener(aVoid -> {
+                Log.i(REGISTER_TAG, getStringRes(R.string.info_user_relations_storage));
+            })
+            .addOnFailureListener(e -> {
+                Log.w(REGISTER_TAG, getStringRes(R.string.error_user_relations_storage), e);
 
-                    Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
-                });
+                Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
+            })
+        ;
+    }
+
+    /**
+     * Créer un collection "settings" pour l'utilisateur.
+     * Cette collection comprend les paramètres de l'utilisateur.
+     *
+     * @param firebaseUser The Firebase UserModel.
+     */
+    private void createUserSettings(FirebaseUser firebaseUser) {
+        SettingsModel settings = new SettingsModel();
+
+        settings.setRadius(SettingsFragment.USER_DEFAULT_RADIUS);
+
+        settingsService
+            .set(firebaseUser.getUid(), settings)
+            .addOnSuccessListener(aVoid -> {
+                Log.i(REGISTER_TAG, getStringRes(R.string.info_user_settings_storage));
+            })
+            .addOnFailureListener(e -> {
+                Log.w(REGISTER_TAG, getStringRes(R.string.error_user_settings_storage), e);
+
+                Toast.makeText(getApplicationContext(), getStringRes(R.string.error_has_occurred), Toast.LENGTH_SHORT).show();
+            })
+        ;
     }
 
     /**
@@ -213,6 +246,7 @@ public class RegisterActivity extends AppCompatActivity {
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
+        settingsService = SettingsService.getInstance();
     }
 
     /**
