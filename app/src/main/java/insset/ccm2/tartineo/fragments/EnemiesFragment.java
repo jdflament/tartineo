@@ -26,6 +26,7 @@ import insset.ccm2.tartineo.R;
 import insset.ccm2.tartineo.adapters.RelationListAdapter;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
+import insset.ccm2.tartineo.services.GoogleMapService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
@@ -42,6 +43,7 @@ public class EnemiesFragment extends Fragment {
     private AuthService authService;
     private UserService userService;
     private RelationService relationService;
+    private GoogleMapService googleMapService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,6 +59,12 @@ public class EnemiesFragment extends Fragment {
         initialize(view);
 
         getEnemyList();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        addEnemiesDialog.dismiss();
     }
 
     /**
@@ -118,6 +126,7 @@ public class EnemiesFragment extends Fragment {
                     }
 
                     createUnfriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
+                    googleMapService.addMarkerFromUserId(userByUsername.getId(), "orange");
                 });
             }
         }).addOnFailureListener(exception -> {
@@ -186,6 +195,7 @@ public class EnemiesFragment extends Fragment {
             Log.i(ENEMIES_TAG, getStringRes(R.string.info_enemy_removal));
 
             relationService.removeFromEnemyList(targetUserId);
+            googleMapService.removeMarker(targetUserId);
             updateEnemyListView(relationService.getEnemyList());
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_enemy_removal), Toast.LENGTH_SHORT).show();
@@ -253,6 +263,7 @@ public class EnemiesFragment extends Fragment {
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
+        googleMapService = GoogleMapService.getInstance();
     }
 
     /**

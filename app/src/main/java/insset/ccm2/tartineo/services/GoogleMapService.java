@@ -26,11 +26,13 @@ public class GoogleMapService {
     private static final GoogleMapService instance = new GoogleMapService();
 
     private AuthService authService;
+    private UserService userService;
 
     private Map<String, Marker> markers = new HashMap<>();
 
     private GoogleMapService() {
         authService = AuthService.getInstance();
+        userService = UserService.getInstance();
     }
 
     public static GoogleMapService getInstance() {
@@ -194,6 +196,20 @@ public class GoogleMapService {
     }
 
     /**
+     * Supprime un marker de la carte.
+     *
+     * @param id Identifiant du Marker
+     */
+    public void removeMarker(String id) {
+        Marker marker = getMarker(id);
+
+        if (marker != null) {
+            marker.remove();
+            markers.remove(id);
+        }
+    }
+
+    /**
      * Récupère la distance entre deux points en km.
      *
      * @param sourceLatitude Latitude initiale
@@ -215,6 +231,26 @@ public class GoogleMapService {
         );
 
         return distances[0] == 0 ? distances[0] : distances[0]/1000;
+    }
+
+    /**
+     * Ajoute un Marker sur la carte depuis l'identifiant d'un utilisateur.
+     *
+     * @param id Identifiant de l'utilisateur.
+     */
+    public void addMarkerFromUserId(String id, String color) {
+        userService
+                .get(id)
+                .addOnSuccessListener(documentSnapshot -> {
+                    String username = documentSnapshot.get("username").toString();
+                    Map<String, Double> location = (Map<String, Double>) documentSnapshot.get("location");
+
+                    addMarker(id, generateLocation(
+                            location.get("latitude"),
+                            location.get("longitude")
+                    ), username, color);
+                })
+        ;
     }
 
     /**

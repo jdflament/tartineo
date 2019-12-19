@@ -81,7 +81,7 @@
     <string name="error_user_remove_relations">An error occurred while deleting the relationship between two users.</string>
     <string name="logged_in">Logged in as <b>%1$s</b>.</string>
     <string name="radius">Radius</string>
-    <string name="radius_settings">Enter the relation display radius :</string>
+    <string name="radius_settings">Enter the display radius of your relation on the map (in km) :</string>
     <string name="save_settings">Save settings</string>
     <string name="info_settings_updated">Settings successfully updated.</string>
     <string name="error_settings_loading">An error occurred during the settings loading.</string>
@@ -91,4 +91,10 @@
     <string name="error_user_settings_storage">An error occurred during the user settings storage.</string>
     <string name="radius_value">%1$d/%2$d</string>
     <string name="info_username_displayed">Current username displayed.</string>
+    <string name="markers_channel_name">Markers notification channel</string>
+    <string name="markers_channel_description">This is the notification channel for markers.</string>
+    <string name="notification_title_friend_is_close_to_you">A friend is close to you !</string>
+    <string name="notification_title_enemy_is_close_to_you">An enemy is close to you !</string>
+    <string name="notification_description_friend_is_close_to_you">%1$s is at %2$s km of you... let\'s meet up !</string>
+    <string name="notification_description_enemy_is_close_to_you">%1$s is at %2$s km of you... go away !</string>
 </resources>

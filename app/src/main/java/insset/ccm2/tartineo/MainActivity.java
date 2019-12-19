@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,7 +19,8 @@ import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.fragments.MapFragment;
 import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.services.AuthService;
-import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.GoogleMapService;
+import insset.ccm2.tartineo.services.NotificationService;
 import insset.ccm2.tartineo.services.RelationService;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,8 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private SettingsFragment settingsFragment = new SettingsFragment();
 
     // Services
-    private MapService mapService;
+    private GoogleMapService googleMapService;
     private AuthService authService;
+    private NotificationService notificationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
 
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
+
+        createNotificationChannel(
+                NotificationService.MARKERS_CHANNEL_ID,
+                getStringRes(R.string.markers_channel_name),
+                getStringRes(R.string.markers_channel_description)
+        );
     }
 
     /**
@@ -61,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         authService.logout();
 
         // Réinitialise la carte
-        mapService.reset();
+        googleMapService.reset();
 
         // Redirige vers l'activité de connexion.
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -113,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Services
         authService = AuthService.getInstance();
-        mapService = MapService.getInstance();
+        googleMapService = GoogleMapService.getInstance();
+        notificationService = NotificationService.getInstance();
     }
 
     /**
@@ -155,5 +166,20 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction().add(R.id.activity_main_frame_layout, mapFragment).commit();
 
         currentFragment = mapFragment;
+    }
+
+    /**
+     * Create a notification channel.
+     */
+    private void createNotificationChannel(String id, CharSequence name, String description) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        try {
+            notificationManager.createNotificationChannel(
+                notificationService.createNotificationChannel(id, name, description)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
