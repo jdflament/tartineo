@@ -22,12 +22,12 @@ import insset.ccm2.tartineo.fragments.MapFragment;
 import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.NotificationService;
 import insset.ccm2.tartineo.services.RelationService;
 
 public class MainActivity extends AppCompatActivity {
 
     private final static String MAIN_TAG = "MAIN_ACTIVITY";
-    private static final String CHANNEL_ID = "TARTINEO_NOTIFICATION_CHANNEL";
 
     // Fragments
     private FragmentManager fragmentManager;
@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     // Services
     private MapService mapService;
     private AuthService authService;
+    private NotificationService notificationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
         }
 
-        createNotificationChannel();
+        createNotificationChannel(
+                NotificationService.MARKERS_CHANNEL_ID,
+                getStringRes(R.string.markers_channel_name),
+                getStringRes(R.string.markers_channel_description)
+        );
+
+        createNotificationChannel(
+                NotificationService.RELATIONS_CHANNEL_ID,
+                getStringRes(R.string.relations_channel_name),
+                getStringRes(R.string.relations_channel_name)
+        );
     }
 
     /**
@@ -121,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         // Services
         authService = AuthService.getInstance();
         mapService = MapService.getInstance();
+        notificationService = NotificationService.getInstance();
     }
 
     /**
@@ -167,20 +179,15 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Create a notification channel.
      */
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
+    private void createNotificationChannel(String id, CharSequence name, String description) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.createNotificationChannel(channel);
+        try {
+            notificationManager.createNotificationChannel(
+                notificationService.createNotificationChannel(id, name, description)
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

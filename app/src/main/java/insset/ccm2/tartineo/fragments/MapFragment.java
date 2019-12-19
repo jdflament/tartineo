@@ -34,6 +34,7 @@ import java.util.Map;
 import insset.ccm2.tartineo.models.LocationModel;
 import insset.ccm2.tartineo.services.AuthService;
 import insset.ccm2.tartineo.services.GoogleMapService;
+import insset.ccm2.tartineo.services.NotificationService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.SettingsService;
 import insset.ccm2.tartineo.services.UserService;
@@ -58,6 +59,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private UserService userService;
     private RelationService relationService;
     private SettingsService settingsService;
+    private NotificationService notificationService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -150,7 +152,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     return;
                 }
 
-                long radius = (Long) settingsDocumentSnapshot.get("radius");
+                long radius = (Long) settingsSnapshotListener.get("radius");
 
                 for (int i = 0; i < relationListIds.size(); i++) {
                     int index = i;
@@ -209,6 +211,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             }
 
                             googleMapService.addMarker(relationId, latLng, username, markerColor);
+
+                            // TODO : Ajouter un paramètre "radius notification", et afficher la notif uniquement si distance < radiusNotification
+
+                            String notificationTitle = getStringRes(R.string.notification_title_friend_is_close_to_you);
+                            String notificationDescription = getResources().getString(R.string.notification_description_friend_is_close_to_you, username, distance);
+
+                            if (markerColor.equals("orange")) {
+                                notificationTitle = getStringRes(R.string.notification_title_enemy_is_close_to_you);
+                                notificationDescription = getResources().getString(R.string.notification_description_enemy_is_close_to_you, username, distance);
+                            }
+
+                            notificationService.createNotification(
+                                    NotificationService.MARKERS_CHANNEL_ID,
+                                    MapFragment.this.getActivity(),
+                                    R.drawable.ic_notifications_black_24dp,
+                                    notificationTitle,
+                                    notificationDescription
+                            );
+
                             Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_added));
                         });
                     });
@@ -341,6 +362,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
         settingsService = SettingsService.getInstance();
+        notificationService = NotificationService.getInstance();
     }
 
     /**

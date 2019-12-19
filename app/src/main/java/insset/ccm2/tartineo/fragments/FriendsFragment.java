@@ -169,7 +169,6 @@ public class FriendsFragment extends Fragment {
                relationService.addInFriendList(targetUserId, documentSnapshot.toObject(UserModel.class));
                relationService.removeFromEnemyList(targetUserId);
                updateFriendListView(relationService.getFriendList());
-
             });
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_storage), Toast.LENGTH_SHORT).show();
@@ -207,6 +206,7 @@ public class FriendsFragment extends Fragment {
     private void getFriendList() {
         relationService.get(authService.getCurrentUser().getUid()).addOnSuccessListener(relationDocumentSnapshot -> {
             relationDocumentSnapshot.getReference().addSnapshotListener((documentSnapshot, e) -> {
+
                 ArrayList<String> friendListIds = (ArrayList<String>) documentSnapshot.get("friendList");
 
                 relationService.clearFriendList();
