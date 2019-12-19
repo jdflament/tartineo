@@ -14,7 +14,6 @@ import insset.ccm2.tartineo.R;
 
 public class NotificationService {
     public static final String MARKERS_CHANNEL_ID = "MARKERS_NOTIFICATION_CHANNEL";
-    public static final String RELATIONS_CHANNEL_ID = "RELATIONS_NOTIFICATION_CHANNEL";
 
     private static final NotificationService instance = new NotificationService();
 

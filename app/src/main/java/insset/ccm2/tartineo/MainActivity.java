@@ -4,11 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +19,7 @@ import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.fragments.MapFragment;
 import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.services.AuthService;
-import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.GoogleMapService;
 import insset.ccm2.tartineo.services.NotificationService;
 import insset.ccm2.tartineo.services.RelationService;
 
@@ -38,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private SettingsFragment settingsFragment = new SettingsFragment();
 
     // Services
-    private MapService mapService;
+    private GoogleMapService googleMapService;
     private AuthService authService;
     private NotificationService notificationService;
 
@@ -60,12 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 getStringRes(R.string.markers_channel_name),
                 getStringRes(R.string.markers_channel_description)
         );
-
-        createNotificationChannel(
-                NotificationService.RELATIONS_CHANNEL_ID,
-                getStringRes(R.string.relations_channel_name),
-                getStringRes(R.string.relations_channel_name)
-        );
     }
 
     /**
@@ -79,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         authService.logout();
 
         // Réinitialise la carte
-        mapService.reset();
+        googleMapService.reset();
 
         // Redirige vers l'activité de connexion.
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -131,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Services
         authService = AuthService.getInstance();
-        mapService = MapService.getInstance();
+        googleMapService = GoogleMapService.getInstance();
         notificationService = NotificationService.getInstance();
     }
 

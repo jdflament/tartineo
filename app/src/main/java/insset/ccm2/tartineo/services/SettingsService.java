@@ -9,6 +9,11 @@ import java.util.Map;
 import insset.ccm2.tartineo.models.SettingsModel;
 
 public class SettingsService {
+    public final static Integer USER_DEFAULT_RADIUS = 15;
+
+    public final static Integer USER_MIN_RADIUS = 1;
+    public final static Integer USER_MAX_RADIUS = 30;
+
     private static final String collectionPath = "settings";
 
     private static final SettingsService instance = new SettingsService();

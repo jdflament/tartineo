@@ -82,7 +82,7 @@
     <string name="error_user_remove_relations">Une erreur est survenue lors de la suppression de la relation entre deux utilisateurs.</string>
     <string name="logged_in">Connecté en tant que <b>%1$s</b>.</string>
     <string name="radius">Rayon</string>
-    <string name="radius_settings">"Saisissez le rayon d'affichage des relations : "</string>
+    <string name="radius_settings">"Saisissez le rayon d'affichage de vos relations sur la carte (en km) : "</string>
     <string name="save_settings">Enregistrer les paramètres</string>
     <string name="info_settings_updated">Vos paramètres ont été mis à jour.</string>
     <string name="error_settings_loading">Une erreur est survenue pendant le chargement des paramètres.</string>
@@ -94,10 +94,8 @@
     <string name="info_username_displayed">Nom d\'utilisateur courant affiché.</string>
     <string name="markers_channel_name">Canal de notification des marqueurs</string>
     <string name="markers_channel_description">Ceci est le canal de notification pour les marqueurs.</string>
-    <string name="relations_channel_name">Canal de notification des relations</string>
-    <string name="relations_channel_description">Ceci est le canal de notification des relations.</string>
     <string name="notification_title_friend_is_close_to_you">Un ami est proche de toi !</string>
     <string name="notification_title_enemy_is_close_to_you">Un ennemi est proche de toi !</string>
-    <string name="notification_description_friend_is_close_to_you">%1$s est à %2$f km de toi... c\'est maintenant ou jamais !</string>
-    <string name="notification_description_enemy_is_close_to_you">%1$s est à %2$f km de toi... va-t-en !</string>
+    <string name="notification_description_friend_is_close_to_you">%1$s est à %2$s km de toi... tartinez-vous !</string>
+    <string name="notification_description_enemy_is_close_to_you">%1$s est à %2$s km de toi... va-t-en !</string>
 </resources>

@@ -27,7 +27,7 @@ import java.util.Map;
 import insset.ccm2.tartineo.adapters.RelationListAdapter;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
-import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.GoogleMapService;
 import insset.ccm2.tartineo.services.RelationService;
 import insset.ccm2.tartineo.services.UserService;
 
@@ -44,7 +44,7 @@ public class FriendsFragment extends Fragment {
     private AuthService authService;
     private UserService userService;
     private RelationService relationService;
-    private MapService mapService;
+    private GoogleMapService googleMapService;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -60,6 +60,12 @@ public class FriendsFragment extends Fragment {
         initialize(view);
 
         getFriendList();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        addfriendsDialog.dismiss();
     }
 
     /**
@@ -121,7 +127,7 @@ public class FriendsFragment extends Fragment {
                     }
 
                     createFriendship(authService.getCurrentUser().getUid(), userByUsername.getId());
-                    mapService.addMarkerFromUserId(userByUsername.getId(), "blue");
+                    googleMapService.addMarkerFromUserId(userByUsername.getId(), "blue");
                 });
             }
         }).addOnFailureListener(exception -> {
@@ -190,6 +196,7 @@ public class FriendsFragment extends Fragment {
             Log.i(FRIENDS_TAG, getStringRes(R.string.info_friend_removal));
 
             relationService.removeFromFriendList(targetUserId);
+            googleMapService.removeMarker(targetUserId);
             updateFriendListView(relationService.getFriendList());
 
             Toast.makeText(getContext().getApplicationContext(), getStringRes(R.string.info_friend_removal), Toast.LENGTH_SHORT).show();
@@ -258,7 +265,7 @@ public class FriendsFragment extends Fragment {
         authService = AuthService.getInstance();
         userService = UserService.getInstance();
         relationService = RelationService.getInstance();
-        mapService = MapService.getInstance();
+        googleMapService = GoogleMapService.getInstance();
     }
 
     /**

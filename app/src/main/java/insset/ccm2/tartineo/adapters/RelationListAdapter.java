@@ -15,7 +15,7 @@ import insset.ccm2.tartineo.fragments.EnemiesFragment;
 import insset.ccm2.tartineo.fragments.FriendsFragment;
 import insset.ccm2.tartineo.models.UserModel;
 import insset.ccm2.tartineo.services.AuthService;
-import insset.ccm2.tartineo.services.MapService;
+import insset.ccm2.tartineo.services.GoogleMapService;
 
 public class RelationListAdapter extends BaseAdapter {
     private final ArrayList mData;
@@ -24,7 +24,7 @@ public class RelationListAdapter extends BaseAdapter {
     private EnemiesFragment enemiesFragment;
 
     // Services
-    private MapService mapService;
+    private GoogleMapService googleMapService;
     private AuthService authService;
 
     public RelationListAdapter(Map<String, UserModel> map, FriendsFragment friendsFragment) {
@@ -82,7 +82,7 @@ public class RelationListAdapter extends BaseAdapter {
 
         // Services
         authService = AuthService.getInstance();
-        mapService = MapService.getInstance();
+        googleMapService = GoogleMapService.getInstance();
 
         return result;
     }
@@ -97,7 +97,7 @@ public class RelationListAdapter extends BaseAdapter {
         String targetUserId = String.valueOf(item.getKey());
 
         friendsFragment.removeFriendship(authService.getCurrentUser().getUid(), targetUserId);
-        mapService.removeMarker(targetUserId);
+        googleMapService.removeMarker(targetUserId);
     }
 
     /**
@@ -110,6 +110,6 @@ public class RelationListAdapter extends BaseAdapter {
         String targetUserId = String.valueOf(item.getKey());
 
         enemiesFragment.removeUnfriendship(authService.getCurrentUser().getUid(), targetUserId);
-        mapService.removeMarker(targetUserId);
+        googleMapService.removeMarker(targetUserId);
     }
 }

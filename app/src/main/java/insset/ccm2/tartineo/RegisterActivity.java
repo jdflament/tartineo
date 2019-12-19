@@ -213,7 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void createUserSettings(FirebaseUser firebaseUser) {
         SettingsModel settings = new SettingsModel();
 
-        settings.setRadius(SettingsFragment.USER_DEFAULT_RADIUS);
+        settings.setRadius(SettingsService.USER_DEFAULT_RADIUS);
 
         settingsService
             .set(firebaseUser.getUid(), settings)

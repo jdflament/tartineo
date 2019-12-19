@@ -25,9 +25,6 @@ public class SettingsFragment extends Fragment {
 
     private final static String SETTINGS_TAG = "SETTINGS_FRAGMENT";
 
-    public final static Integer USER_DEFAULT_RADIUS = 30;
-    public final static Integer USER_MAX_RADIUS = 2000;
-
     // Composants
     private TextView welcomeUserText;
     private SeekBar radiusSeekbar;
@@ -113,10 +110,10 @@ public class SettingsFragment extends Fragment {
     /**
      * Affiche la valeur du radius au changement.
      */
-    private OnSeekBarChangeListener updateSeekbarValue = new OnSeekBarChangeListener() {
+    private OnSeekBarChangeListener updateRadiusSeekbarValue = new OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, progress, USER_MAX_RADIUS));
+            radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, progress, SettingsService.USER_MAX_RADIUS));
         }
 
         @Override
@@ -138,9 +135,12 @@ public class SettingsFragment extends Fragment {
         welcomeUserText = view.findViewById(R.id.welcome_user_text);
 
         radiusSeekbar = view.findViewById(R.id.radius_seekbar);
-        radiusSeekbar.setOnSeekBarChangeListener(updateSeekbarValue);
         radiusSeekbarValue = view.findViewById(R.id.radius_seekbar_value);
-        radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, radiusSeekbar.getProgress(), USER_MAX_RADIUS));
+
+        radiusSeekbar.setOnSeekBarChangeListener(updateRadiusSeekbarValue);
+        radiusSeekbar.setMin(SettingsService.USER_MIN_RADIUS);
+        radiusSeekbar.setMax(SettingsService.USER_MAX_RADIUS);
+        radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, radiusSeekbar.getProgress(), SettingsService.USER_MAX_RADIUS));
 
         Button saveSettingsButton = view.findViewById(R.id.save_settings_button);
         saveSettingsButton.setOnClickListener(v -> saveSettings());
