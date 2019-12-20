@@ -1,16 +1,12 @@
 package insset.ccm2.tartineo.services;
 
 import android.app.Activity;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
-import insset.ccm2.tartineo.R;
 
 public class NotificationService {
     public static final String MARKERS_CHANNEL_ID = "MARKERS_NOTIFICATION_CHANNEL";

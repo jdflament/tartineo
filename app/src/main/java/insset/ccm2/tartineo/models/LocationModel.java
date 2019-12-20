@@ -1,7 +1,5 @@
 package insset.ccm2.tartineo.models;
 
-import android.location.Location;
-
 public class LocationModel {
     private double latitude;
 
