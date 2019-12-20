@@ -61,6 +61,7 @@ public class SettingsService {
         Map<String,Object> settingsMap = new HashMap<>();
 
         settingsMap.put("radius", settings.getRadius());
+        settingsMap.put("phoneNumber", settings.getPhoneNumber());
 
         return firestoreService.update(collectionPath, userId, settingsMap);
     }

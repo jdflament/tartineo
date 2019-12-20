@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private GoogleMapService googleMapService;
     private AuthService authService;
     private NotificationService notificationService;
+    private RelationService relationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Réinitialise la carte
         googleMapService.reset();
+        relationService.clearFriendList();
+        relationService.clearEnemyList();
 
         // Redirige vers l'activité de connexion.
         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -125,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         authService = AuthService.getInstance();
         googleMapService = GoogleMapService.getInstance();
         notificationService = NotificationService.getInstance();
+        relationService = RelationService.getInstance();
     }
 
     /**

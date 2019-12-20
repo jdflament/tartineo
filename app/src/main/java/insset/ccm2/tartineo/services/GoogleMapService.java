@@ -1,10 +1,12 @@
 package insset.ccm2.tartineo.services;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -151,6 +153,28 @@ public class GoogleMapService {
      */
     public Marker getMarker(String id) {
         return markers.get(id);
+    }
+
+    /**
+     * Récupère l'identifiant d'un Marker grâce à son Marker
+     *
+     * @param marker Le Marker
+     *
+     * @return L'identifiant du Marker
+     */
+    public String getMarkerIdByMarker(Marker marker) {
+        String id = null;
+
+        for (Map.Entry<String, Marker> markerEntry : markers.entrySet()) {
+            String k = markerEntry.getKey();
+            Marker m = markerEntry.getValue();
+
+            if (m.equals(marker)) {
+                id = k;
+            }
+        }
+
+        return id;
     }
 
     /**

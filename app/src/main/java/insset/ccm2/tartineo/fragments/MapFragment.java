@@ -1,14 +1,20 @@
 package insset.ccm2.tartineo.fragments;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,7 +34,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -45,6 +50,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final static String MAP_TAG = "MAP_FRAGMENT";
 
     private static final int LOCATION_REQUEST_CODE = 101;
+
+    // Component (Dialog)
+    private Dialog contactFriendModal;
+    private TextView contactFriendDialogTitle;
+    private Button contactFriendDialogPhoneButton;
+    private Button contactFriendDialogSmsButton;
 
     // Location
     private LocationModel currentLocation;
@@ -85,10 +96,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onDestroy();
 
         googleMapService.reset();
+        contactFriendModal.dismiss();
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        googleMap.setOnMarkerClickListener(onMarkerClickListener);
         googleMapService.setMap(googleMap);
 
         setCurrentUserMarker();
@@ -242,6 +255,109 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     /**
+     * Au click sur un Marker (ami), l'utilisateur peut le contacter par téléphone ou SMS
+     * si l'utilisateur sélectionné a indiqué son numéro de téléphone.
+     */
+    private GoogleMap.OnMarkerClickListener onMarkerClickListener = marker -> {
+        String markerId = googleMapService.getMarkerIdByMarker(marker);
+
+        if (markerId != null && !markerId.equals(authService.getCurrentUser().getUid()) && relationService.getFriendList().containsKey(markerId)) {
+            userService
+                .get(markerId)
+                .addOnSuccessListener(documentSnapshot -> {
+                    String relationUsername = (String) documentSnapshot.get("username");
+
+                    settingsService
+                            .get(markerId)
+                            .addOnSuccessListener(settingsDocumentSnapshot -> {
+                                String relationPhoneNumber = (String) settingsDocumentSnapshot.get("phoneNumber");
+
+                                if (relationUsername != null && relationPhoneNumber != null) {
+                                    showContactFriendModal(relationUsername);
+                                    contactFriendDialogPhoneButton.setOnClickListener(v -> callFriend(relationPhoneNumber));
+                                    contactFriendDialogSmsButton.setOnClickListener(v -> sendMessage(relationPhoneNumber));
+                                }
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(MAP_TAG, "Une erreur est survenue au click d'un marker");
+                })
+            ;
+        }
+
+        return false;
+    };
+
+    /**
+     * Appel un utilisateur ayant saisi son numéro de téléphone.
+     * Demande les permissions si elles ne sont pas données.
+     *
+     * @param phoneNumber
+     */
+    private void callFriend(String phoneNumber) {
+        try {
+            if (Build.VERSION.SDK_INT > 22) {
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
+
+                    return;
+                }
+
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + phoneNumber));
+                startActivity(callIntent);
+            } else {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:" + phoneNumber));
+                startActivity(callIntent);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Ouvre l'application de message préremplie avec le numéro indiqué.
+     * Demande les permissions si elles ne sont pas données.
+     *
+     * @param phoneNumber Le numéro de téléphone
+     */
+    private void sendMessage(String phoneNumber) {
+        try {
+            if (Build.VERSION.SDK_INT > 22) {
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
+
+                    return;
+                }
+            }
+
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + phoneNumber));
+            startActivity(callIntent);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("sms:" + phoneNumber));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getContext().startActivity(intent);
+    }
+
+    /**
+     * Affiche le dialogue d'ajout d'ami.
+     */
+    private void showContactFriendModal(String username) {
+        contactFriendModal.show();
+        contactFriendDialogTitle.setText(getResources().getString(R.string.contact_user, username));
+    }
+
+    /**
      * Demande de mettre à jour la localisation de l'utilisateur courant toutes les 5 secondes.
      */
     private void requestLocationUpdates() {
@@ -353,6 +469,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Composants
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         supportMapFragment = (SupportMapFragment) MapFragment.this.getChildFragmentManager().findFragmentById(R.id.map);
+
+        // Composants (dialog)
+        contactFriendModal = new Dialog(getContext());
+        contactFriendModal.setContentView(R.layout.contact_relation_dialog);
+
+        contactFriendDialogTitle = contactFriendModal.findViewById(R.id.contact_friend_dialog_title);
+        contactFriendDialogPhoneButton = contactFriendModal.findViewById(R.id.contact_friend_dialog_phone);
+        contactFriendDialogSmsButton = contactFriendModal.findViewById(R.id.contact_friend_dialog_sms);
 
         // Services
         googleMapService = GoogleMapService.getInstance();
