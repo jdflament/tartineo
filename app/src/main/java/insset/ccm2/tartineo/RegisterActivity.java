@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
-import insset.ccm2.tartineo.fragments.SettingsFragment;
 import insset.ccm2.tartineo.models.RelationModel;
 import insset.ccm2.tartineo.models.SettingsModel;
 import insset.ccm2.tartineo.models.UserModel;
