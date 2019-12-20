@@ -280,7 +280,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(MAP_TAG, "Une erreur est survenue au click d'un marker");
+                    Log.w(MAP_TAG, getStringRes(R.string.error_has_occurred));
                 })
             ;
         }
@@ -296,23 +296,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void callFriend(String phoneNumber) {
         try {
-            if (Build.VERSION.SDK_INT > 22) {
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
 
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
-
-                    return;
-                }
-
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                startActivity(callIntent);
-            } else {
-                Intent callIntent = new Intent(Intent.ACTION_CALL);
-                callIntent.setData(Uri.parse("tel:" + phoneNumber));
-                startActivity(callIntent);
+                return;
             }
+
+            Intent callIntent = new Intent(Intent.ACTION_CALL);
+            callIntent.setData(Uri.parse("tel:" + phoneNumber));
+            startActivity(callIntent);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -326,14 +318,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void sendMessage(String phoneNumber) {
         try {
-            if (Build.VERSION.SDK_INT > 22) {
-                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
 
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.CALL_PHONE}, 101);
-
-                    return;
-                }
+                return;
             }
 
             Intent callIntent = new Intent(Intent.ACTION_CALL);
