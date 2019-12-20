@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_map"
+        android:icon="@drawable/ic_map_black_24dp"
+        android:title="@string/map" />
+
+    <item
+        android:id="@+id/action_friends"
+        android:icon="@drawable/ic_mood_black_24dp"
+        android:title="@string/friends" />
+
+    <item
+        android:id="@+id/action_enemies"
+        android:icon="@drawable/ic_mood_bad_black_24dp"
+        android:title="@string/enemies" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/settings" />
+</menu>
