@@ -98,4 +98,10 @@
     <string name="notification_title_enemy_is_close_to_you">Un ennemi est proche de toi !</string>
     <string name="notification_description_friend_is_close_to_you">%1$s est à %2$s km de toi... tartinez-vous !</string>
     <string name="notification_description_enemy_is_close_to_you">%1$s est à %2$s km de toi... va-t-en !</string>
+    <string name="phone_number">Numéro de téléphone</string>
+    <string name="phone_number_settings">Saisissez votre numéro de téléphone :</string>
+    <string name="contact_user">Contacter %1$s</string>
+    <string name="call">Appeler</string>
+    <string name="send_sms">Envoyer un SMS</string>
+    <string name="contact_friend_dialog_description">Cliquez sur l\'un des deux boutons ci-dessous pour contacter votre ami.</string>
 </resources>

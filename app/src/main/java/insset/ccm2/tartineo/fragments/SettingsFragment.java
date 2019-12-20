@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ public class SettingsFragment extends Fragment {
     private TextView welcomeUserText;
     private SeekBar radiusSeekbar;
     private TextView radiusSeekbarValue;
+    private EditText phoneNumberValue;
 
     // Services
     private AuthService authService;
@@ -78,6 +80,7 @@ public class SettingsFragment extends Fragment {
 
                 if (settings != null) {
                     radiusSeekbar.setProgress(settings.getRadius());
+                    phoneNumberValue.setText(settings.getPhoneNumber());
                 }
             })
             .addOnFailureListener(e -> Log.w(SETTINGS_TAG, getStringRes(R.string.error_settings_loading), e));
@@ -91,8 +94,10 @@ public class SettingsFragment extends Fragment {
         SettingsModel settings = new SettingsModel();
 
         int radius = radiusSeekbar.getProgress();
+        String phoneNumber = phoneNumberValue.getText().toString();
 
         settings.setRadius(radius);
+        settings.setPhoneNumber(phoneNumber);
 
         settingsService
             .update(authService.getCurrentUser().getUid(), settings)
@@ -141,6 +146,8 @@ public class SettingsFragment extends Fragment {
         radiusSeekbar.setMin(SettingsService.USER_MIN_RADIUS);
         radiusSeekbar.setMax(SettingsService.USER_MAX_RADIUS);
         radiusSeekbarValue.setText(getResources().getString(R.string.radius_value, radiusSeekbar.getProgress(), SettingsService.USER_MAX_RADIUS));
+
+        phoneNumberValue = view.findViewById(R.id.phone_number_value);
 
         Button saveSettingsButton = view.findViewById(R.id.save_settings_button);
         saveSettingsButton.setOnClickListener(v -> saveSettings());

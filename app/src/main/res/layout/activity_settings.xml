@@ -50,6 +50,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/phone_number_settings"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" />
+
+        <EditText
+            android:id="@+id/phone_number_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:hint="@string/phone_number" />
     </LinearLayout>
 
     <RelativeLayout

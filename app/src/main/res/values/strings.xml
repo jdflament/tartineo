@@ -97,4 +97,10 @@
     <string name="notification_title_enemy_is_close_to_you">An enemy is close to you !</string>
     <string name="notification_description_friend_is_close_to_you">%1$s is at %2$s km of you... let\'s meet up !</string>
     <string name="notification_description_enemy_is_close_to_you">%1$s is at %2$s km of you... go away !</string>
+    <string name="phone_number">Phone number</string>
+    <string name="phone_number_settings">Insert your phone number :</string>
+    <string name="contact_user">Contact %1$s</string>
+    <string name="call">Call</string>
+    <string name="send_sms">Send SMS</string>
+    <string name="contact_friend_dialog_description">Click on one of the two buttons below to contact your friend.</string>
 </resources>
