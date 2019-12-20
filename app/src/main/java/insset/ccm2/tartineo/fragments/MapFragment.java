@@ -209,11 +209,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
                             String username = documentSnapshot.get("username").toString();
 
-                            if (currentRelationMarker != null) {
-                                Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
-                                googleMapService.removeMarker(relationId);
-                            }
-
                             float distance = googleMapService.getDistance(currentLocation.getLatitude(), currentLocation.getLongitude(), latLng.latitude, latLng.longitude);
 
                             if (distance > radius) {
@@ -238,6 +233,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 );
                             }
 
+                            if (currentRelationMarker != null) {
+                                Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_removal));
+                                googleMapService.removeMarker(relationId);
+                            }
+                            
                             googleMapService.addMarker(relationId, latLng, username, markerColor);
 
                             Log.i(MAP_TAG, getStringRes(R.string.info_relation_marker_added));
